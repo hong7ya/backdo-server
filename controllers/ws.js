@@ -5,15 +5,16 @@ module.exports.open = async (req, res) => {
     args: [
       "--disable-infobars",
       "--remote-debugging-port=9222",
-      "--remote-allow-origins=http://localhost:8000",
-      "about:blank"
+      "--remote-allow-origins=https://animated-cactus-ae69c5.netlify.app",
+      "--remote-debugging-address=0.0.0.0",
+      "about:blank",
     ],
-    headless: false
+    headless: true,
   });
 
   const browserPID = browser.process().pid;
 
-  const response = await fetch("http://localhost:9222/json");
+  const response = await fetch("http://0.0.0.0:9222/json");
   if (!response.ok) {
     throw new Error(`Response status: ${response.status}`);
   }
