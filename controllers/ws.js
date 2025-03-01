@@ -8,7 +8,7 @@ module.exports.open = async (req, res) => {
       "--remote-allow-origins=*",
       "about:blank"
     ],
-    headless: false
+    headless: true,
   });
 
   const browserPID = browser.process().pid;
