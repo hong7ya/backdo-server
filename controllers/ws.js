@@ -5,7 +5,7 @@ module.exports.open = async (req, res) => {
     args: [
       "--disable-infobars",
       "--remote-debugging-port=9222",
-      "--remote-allow-origins=http://localhost:8000",
+      "--remote-allow-origins=*",
       "about:blank"
     ],
     headless: false
