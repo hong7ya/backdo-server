@@ -6,7 +6,7 @@
 
 # 레포지토리 링크
 
-[개발자도구 프론트엔드 레포지토리](https://github.com/GoToPrevLine/devtools-frontend) | [랜딩 페이지 레포지토리](https://github.com/GoToPrevLine/landing) | [서버 레포지토리](https://github.com/GoToPrevLine/server)
+[개발자도구 프론트엔드 레포지토리](https://github.com/hong7ya/backdo-devtools-frontend) | [랜딩 페이지 레포지토리](https://github.com/hong7ya/backdo-landing) | [서버 레포지토리](https://github.com/hong7ya/backdo-server)
 
 # 목차
 
@@ -84,15 +84,25 @@ BackDo는 resume로 지나쳤다거나, step을 누르면서 지나쳤다거나 
 
 # 기술 스택
 
-[![chrome_devtools_protocol](https://img.shields.io/badge/chrome_devtools_protocol-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://chromedevtools.github.io/devtools-protocol)
+**프론트엔드**
+
 [![typescript](https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![puppeteer](https://img.shields.io/badge/puppeteer-40B5A4?style=for-the-badge&logo=puppeteer&logoColor=white)](https://pptr.dev/)
-[![express](https://img.shields.io/badge/express-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
 [![react](https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://react.dev/)
 [![tailwind css](https://img.shields.io/badge/tailwind_css-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![daisy ui](https://img.shields.io/badge/daisy_ui-1AD1A5?style=for-the-badge&logo=daisyui&logoColor=white)](https://daisyui.com/)
 [![vite](https://img.shields.io/badge/vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vite.dev/)
 [![netlify](https://img.shields.io/badge/netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://www.netlify.com)
+
+**테스트**
+
+[![mocha](https://img.shields.io/badge/mocha-8D6748?style=for-the-badge&logo=mocha&logoColor=white)](https://mochajs.org/)
+[![chai](https://img.shields.io/badge/chai-A30701?style=for-the-badge&logo=chai&logoColor=white)](https://www.chaijs.com/)
+
+**백엔드**
+
+[![express](https://img.shields.io/badge/express-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+[![puppeteer](https://img.shields.io/badge/puppeteer-40B5A4?style=for-the-badge&logo=puppeteer&logoColor=white)](https://pptr.dev/)
+[![chrome_devtools_protocol](https://img.shields.io/badge/chrome_devtools_protocol-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://chromedevtools.github.io/devtools-protocol)
 
 # 개발 과정 중 챌린지 요소
 
