@@ -112,7 +112,7 @@ BackDo는 resume로 지나쳤다거나, step을 누르면서 지나쳤다거나 
 
 구글 크롬 개발자도구는 건강한 개발 생태계를 위해 오픈소스로 제공되고 있습니다. LICENSE 파일을 보면 수정 여부와 상관없이 Copyright만 고지하면 재배포가 가능하다고 설명하고 있습니다. 오픈소스로 제공되는 방대하고 복잡한 웹앱을 수정하기 위해 코드베이스를 분석했습니다. 공식문서를 수도 없이 읽으며 해석하고 직접 코드를 치며 다음과 같이 접근했습니다.
 
-평소에 **공식 문서를 바탕으로 직접 코드를 치고 수정하는 방식**이 저에게는 기술을 습득하는 데 가장 빠르다고 생각합니다. 오픈 소스에도 제작자들이 만들어놓은 문서들이 존재하여 특히 [Get the Code](https://chromium.googlesource.com/devtools/devtools-frontend/+/main/docs/get_the_code.md), [Contribution Guide](https://chromium.googlesource.com/devtools/devtools-frontend/+/main/docs/contributing/README.md), [Architecture of DevTools](https://chromium.googlesource.com/devtools/devtools-frontend/+/main/docs/architecture_of_devtools.md), [Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/) 문서가 많은 도움이 되고 있습니다. 이렇게 새롭게 얻게 된 지식을 소화시키기 위해 바로 코드베이스로 넘어가 확인했습니다.
+평소에 **공식 문서를 바탕으로 직접 코드를 치고 수정하는 방식**이 저에게는 기술을 습득하는 데 가장 빠르다고 생각합니다. 오픈 소스에도 제작자들이 만들어놓은 문서들이 있어 많은 도움이 되고 있습니다. 이렇게 새롭게 얻게 된 지식을 소화시키기 위해 바로 코드베이스로 넘어가 확인했습니다.
 
 코드베이스를 로컬 환경에서 구동되도록 설정하고 냅다 코드를 수정하기 위해서는 오픈 소스 제작자들이 사용하는 새로운 빌드 툴을 써야합니다. 구글은 [depot_tools](https://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up)를 만들어 사용하고 있고 코드를 받고 빌드하는데 필수라 depot_tools 문서를 탐독하며 다시 여러 시행착오를 거치면서 설정을 진행했습니다.
 
