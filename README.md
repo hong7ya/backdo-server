@@ -16,26 +16,31 @@
   * [디버거에서 앞으로 가기가 있는 데, 왜 거꾸로 가기는 없는 지에 대한 의문](#%EB%94%94%EB%B2%84%EA%B1%B0%EC%97%90%EC%84%9C-%EC%95%9E%EC%9C%BC%EB%A1%9C-%EA%B0%80%EA%B8%B0%EA%B0%80-%EC%9E%88%EB%8A%94-%EB%8D%B0-%EC%99%9C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0%EB%8A%94-%EC%97%86%EB%8A%94-%EC%A7%80%EC%97%90-%EB%8C%80%ED%95%9C-%EC%9D%98%EB%AC%B8)
   * [자유롭게 거꾸로 가고, 이후에는 새로운 경로로 탐색 희망](#%EC%9E%90%EC%9C%A0%EB%A1%AD%EA%B2%8C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B3%A0-%EC%9D%B4%ED%9B%84%EC%97%90%EB%8A%94-%EC%83%88%EB%A1%9C%EC%9A%B4-%EA%B2%BD%EB%A1%9C%EB%A1%9C-%ED%83%90%EC%83%89-%ED%9D%AC%EB%A7%9D)
 - [기능](#%EA%B8%B0%EB%8A%A5)
-  * [for 문에서 BackDo](#for-%EB%AC%B8%EC%97%90%EC%84%9C-backdo)
-  * [if 문에서 BackDo](#if-%EB%AC%B8%EC%97%90%EC%84%9C-backdo)
-  * [함수에서 BackDo](#%ED%95%A8%EC%88%98%EC%97%90%EC%84%9C-backdo)
+  * [for 문에서 거꾸로 가기](#for-%EB%AC%B8%EC%97%90%EC%84%9C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0)
+  * [if 문에서 거꾸로 가기](#if-%EB%AC%B8%EC%97%90%EC%84%9C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0)
+  * [함수에서 거꾸로 가기](#%ED%95%A8%EC%88%98%EC%97%90%EC%84%9C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0)
 - [기술 스택](#%EA%B8%B0%EC%88%A0-%EC%8A%A4%ED%83%9D)
 - [개발 과정 중 챌린지 요소](#%EA%B0%9C%EB%B0%9C-%EA%B3%BC%EC%A0%95-%EC%A4%91-%EC%B1%8C%EB%A6%B0%EC%A7%80-%EC%9A%94%EC%86%8C)
-  * [디버거에 새로운 기능 넣기](#%EB%94%94%EB%B2%84%EA%B1%B0%EC%97%90-%EC%83%88%EB%A1%9C%EC%9A%B4-%EA%B8%B0%EB%8A%A5-%EB%84%A3%EA%B8%B0)
-    + [구글 크롬 오픈 소스 접근 방법](#%EA%B5%AC%EA%B8%80-%ED%81%AC%EB%A1%AC-%EC%98%A4%ED%94%88-%EC%86%8C%EC%8A%A4-%EC%A0%91%EA%B7%BC-%EB%B0%A9%EB%B2%95)
-    + [코드 베이스 탐구 영역 한정](#%EC%BD%94%EB%93%9C-%EB%B2%A0%EC%9D%B4%EC%8A%A4-%ED%83%90%EA%B5%AC-%EC%98%81%EC%97%AD-%ED%95%9C%EC%A0%95)
-    + [기존 로직 활용 여부](#%EA%B8%B0%EC%A1%B4-%EB%A1%9C%EC%A7%81-%ED%99%9C%EC%9A%A9-%EC%97%AC%EB%B6%80)
-  * [BackDo 기능 구현하기](#backdo-%EA%B8%B0%EB%8A%A5-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
-    + [방향 : JavaScript 흐름과 breakpoint 흐름 맞추기](#%EB%B0%A9%ED%96%A5--javascript-%ED%9D%90%EB%A6%84%EA%B3%BC-breakpoint-%ED%9D%90%EB%A6%84-%EB%A7%9E%EC%B6%94%EA%B8%B0)
-      - [for 문의 흐름](#for-%EB%AC%B8%EC%9D%98-%ED%9D%90%EB%A6%84)
-      - [for 문 body와 조건 부여](#for-%EB%AC%B8-body%EC%99%80-%EC%A1%B0%EA%B1%B4-%EB%B6%80%EC%97%AC)
-      - [for 문 head의 afterthought part와 현재 위치](#for-%EB%AC%B8-head%EC%9D%98-afterthought-part%EC%99%80-%ED%98%84%EC%9E%AC-%EC%9C%84%EC%B9%98)
-      - [for 문 head의 condition part와 세 가지 상태](#for-%EB%AC%B8-head%EC%9D%98-condition-part%EC%99%80-%EC%84%B8-%EA%B0%80%EC%A7%80-%EC%83%81%ED%83%9C)
-    + [정도 : 거꾸로 가야하는 최소한의 정도를 구하기](#%EC%A0%95%EB%8F%84--%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EC%95%BC%ED%95%98%EB%8A%94-%EC%B5%9C%EC%86%8C%ED%95%9C%EC%9D%98-%EC%A0%95%EB%8F%84%EB%A5%BC-%EA%B5%AC%ED%95%98%EA%B8%B0)
-      - [한 단계 이전을 적용하여 시뮬레이션 실행](#%ED%95%9C-%EB%8B%A8%EA%B3%84-%EC%9D%B4%EC%A0%84%EC%9D%84-%EC%A0%81%EC%9A%A9%ED%95%98%EC%97%AC-%EC%8B%9C%EB%AE%AC%EB%A0%88%EC%9D%B4%EC%85%98-%EC%8B%A4%ED%96%89)
-      - [시뮬레이션 결과 판별과 반복할지 여부 결정](#%EC%8B%9C%EB%AE%AC%EB%A0%88%EC%9D%B4%EC%85%98-%EA%B2%B0%EA%B3%BC-%ED%8C%90%EB%B3%84%EA%B3%BC-%EB%B0%98%EB%B3%B5%ED%95%A0%EC%A7%80-%EC%97%AC%EB%B6%80-%EA%B2%B0%EC%A0%95)
-    + [범위 : 이동할 레벨을 한정시키기](#%EB%B2%94%EC%9C%84--%EC%9D%B4%EB%8F%99%ED%95%A0-%EB%A0%88%EB%B2%A8%EC%9D%84-%ED%95%9C%EC%A0%95%EC%8B%9C%ED%82%A4%EA%B8%B0)
-  * [Chrome에서 WebSocket URL 얻기](#chrome%EC%97%90%EC%84%9C-websocket-url-%EC%96%BB%EA%B8%B0)
+  * [크롬 오픈소스 코드에 빠르게 적응하기](#%ED%81%AC%EB%A1%AC-%EC%98%A4%ED%94%88%EC%86%8C%EC%8A%A4-%EC%BD%94%EB%93%9C%EC%97%90-%EB%B9%A0%EB%A5%B4%EA%B2%8C-%EC%A0%81%EC%9D%91%ED%95%98%EA%B8%B0)
+    + [1. 구글 크롬 오픈 소스에서 코드 얻어오기](#1-%EA%B5%AC%EA%B8%80-%ED%81%AC%EB%A1%AC-%EC%98%A4%ED%94%88-%EC%86%8C%EC%8A%A4%EC%97%90%EC%84%9C-%EC%BD%94%EB%93%9C-%EC%96%BB%EC%96%B4%EC%98%A4%EA%B8%B0)
+      - [1) 구글 크롬 오픈 소스 공식 문서 뜯어보기](#1-%EA%B5%AC%EA%B8%80-%ED%81%AC%EB%A1%AC-%EC%98%A4%ED%94%88-%EC%86%8C%EC%8A%A4-%EA%B3%B5%EC%8B%9D-%EB%AC%B8%EC%84%9C-%EB%9C%AF%EC%96%B4%EB%B3%B4%EA%B8%B0)
+      - [2) depot_tools 사용하고 CDP 통신 연결하기](#2-depot_tools-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B3%A0-cdp-%ED%86%B5%EC%8B%A0-%EC%97%B0%EA%B2%B0%ED%95%98%EA%B8%B0)
+    + [2. 구글 크롬 오픈 소스 분석 방법](#2-%EA%B5%AC%EA%B8%80-%ED%81%AC%EB%A1%AC-%EC%98%A4%ED%94%88-%EC%86%8C%EC%8A%A4-%EB%B6%84%EC%84%9D-%EB%B0%A9%EB%B2%95)
+      - [1) 탐색할 기준 정의하기](#1-%ED%83%90%EC%83%89%ED%95%A0-%EA%B8%B0%EC%A4%80-%EC%A0%95%EC%9D%98%ED%95%98%EA%B8%B0)
+      - [2) 개발자 도구의 개발자 도구 활용하기](#2-%EA%B0%9C%EB%B0%9C%EC%9E%90-%EB%8F%84%EA%B5%AC%EC%9D%98-%EA%B0%9C%EB%B0%9C%EC%9E%90-%EB%8F%84%EA%B5%AC-%ED%99%9C%EC%9A%A9%ED%95%98%EA%B8%B0)
+      - [3) 프로토콜 모니터 활용하기](#3-%ED%94%84%EB%A1%9C%ED%86%A0%EC%BD%9C-%EB%AA%A8%EB%8B%88%ED%84%B0-%ED%99%9C%EC%9A%A9%ED%95%98%EA%B8%B0)
+      - [4) 코드 수정하며 코드 레벨 이해하기](#4-%EC%BD%94%EB%93%9C-%EC%88%98%EC%A0%95%ED%95%98%EB%A9%B0-%EC%BD%94%EB%93%9C-%EB%A0%88%EB%B2%A8-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0)
+    + [3. 오픈 소스 기존 로직 활용](#3-%EC%98%A4%ED%94%88-%EC%86%8C%EC%8A%A4-%EA%B8%B0%EC%A1%B4-%EB%A1%9C%EC%A7%81-%ED%99%9C%EC%9A%A9)
+  * [거꾸로 가기 기능 구현하기](#%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0-%EA%B8%B0%EB%8A%A5-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
+    + [1. JavaScript 방향에 맞게 목적지 설정하기](#1-javascript-%EB%B0%A9%ED%96%A5%EC%97%90-%EB%A7%9E%EA%B2%8C-%EB%AA%A9%EC%A0%81%EC%A7%80-%EC%84%A4%EC%A0%95%ED%95%98%EA%B8%B0)
+      - [1) for 문 body와 Conditional Breakpoint](#1-for-%EB%AC%B8-body%EC%99%80-conditional-breakpoint)
+      - [2) for 문 head의 afterthought part와 현재 위치](#2-for-%EB%AC%B8-head%EC%9D%98-afterthought-part%EC%99%80-%ED%98%84%EC%9E%AC-%EC%9C%84%EC%B9%98)
+      - [3) for 문 head의 condition part와 세 가지 상태](#3-for-%EB%AC%B8-head%EC%9D%98-condition-part%EC%99%80-%EC%84%B8-%EA%B0%80%EC%A7%80-%EC%83%81%ED%83%9C)
+    + [2. 도달 할 수 있는 최소한의 정도를 구하기](#2-%EB%8F%84%EB%8B%AC-%ED%95%A0-%EC%88%98-%EC%9E%88%EB%8A%94-%EC%B5%9C%EC%86%8C%ED%95%9C%EC%9D%98-%EC%A0%95%EB%8F%84%EB%A5%BC-%EA%B5%AC%ED%95%98%EA%B8%B0)
+      - [1) 한 단계 이전을 적용하여 시뮬레이션 실행](#1-%ED%95%9C-%EB%8B%A8%EA%B3%84-%EC%9D%B4%EC%A0%84%EC%9D%84-%EC%A0%81%EC%9A%A9%ED%95%98%EC%97%AC-%EC%8B%9C%EB%AE%AC%EB%A0%88%EC%9D%B4%EC%85%98-%EC%8B%A4%ED%96%89)
+      - [2) 시뮬레이션 결과 판별과 반복할지 여부 결정](#2-%EC%8B%9C%EB%AE%AC%EB%A0%88%EC%9D%B4%EC%85%98-%EA%B2%B0%EA%B3%BC-%ED%8C%90%EB%B3%84%EA%B3%BC-%EB%B0%98%EB%B3%B5%ED%95%A0%EC%A7%80-%EC%97%AC%EB%B6%80-%EA%B2%B0%EC%A0%95)
+    + [3. 범위를 지정해 이동할 레벨을 한정시키기](#3-%EB%B2%94%EC%9C%84%EB%A5%BC-%EC%A7%80%EC%A0%95%ED%95%B4-%EC%9D%B4%EB%8F%99%ED%95%A0-%EB%A0%88%EB%B2%A8%EC%9D%84-%ED%95%9C%EC%A0%95%EC%8B%9C%ED%82%A4%EA%B8%B0)
+  * [CDP 관련 API 및 스크립트 구현하기](#cdp-%EA%B4%80%EB%A0%A8-api-%EB%B0%8F-%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
 - [회고](#%ED%9A%8C%EA%B3%A0)
 
 <!-- tocstop -->
@@ -52,7 +57,7 @@ BackDo는 resume로 지나쳤다거나, step을 누르면서 지나쳤다거나 
 
 # 기능
 
-## for 문에서 BackDo
+## for 문에서 거꾸로 가기
 
 - for loop body 내부에서 loop counter를 유지한 상태로 한 단계씩 거꾸로 갈 수 있습니다.
 - for loop body 첫 번째 줄에서 condition part로 이동할 수 있습니다.
@@ -64,13 +69,13 @@ BackDo는 resume로 지나쳤다거나, step을 누르면서 지나쳤다거나 
 
 [![for문에서BackDo](https://github.com/user-attachments/assets/7cbbb28e-a626-4951-b8e6-64b76f41bb44)](https://landing.BackDo.site/)
 
-## if 문에서 BackDo
+## if 문에서 거꾸로 가기
 
 - 조건에 의해 도달 할 수 없는 줄은 건너뜁니다.
 
 [![if문에서BackDo](https://github.com/user-attachments/assets/1625cb7e-54c8-42fa-8a66-23c7f6a2f89f)](https://landing.BackDo.site/)
 
-## 함수에서 BackDo
+## 함수에서 거꾸로 가기
 
 - 함수 스코프를 지킵니다.
   - 함수 첫 번째 줄에서는 paused 상태를 유지합니다.
@@ -106,57 +111,86 @@ BackDo는 resume로 지나쳤다거나, step을 누르면서 지나쳤다거나 
 
 # 개발 과정 중 챌린지 요소
 
-## 디버거에 새로운 기능 넣기
+## 크롬 오픈소스 코드에 빠르게 적응하기
 
-### 구글 크롬 오픈 소스 접근 방법
+### 1. 구글 크롬 오픈 소스에서 코드 얻어오기
+
+#### 1) 구글 크롬 오픈 소스 공식 문서 뜯어보기
 
 구글 크롬 개발자도구는 건강한 개발 생태계를 위해 오픈소스로 제공되고 있습니다. LICENSE 파일을 보면 수정 여부와 상관없이 Copyright만 고지하면 재배포가 가능하다고 설명하고 있습니다. 오픈소스로 제공되는 방대하고 복잡한 웹앱을 수정하기 위해 코드베이스를 분석했습니다. 공식 문서를 수도 없이 읽으며 해석하고 직접 코드를 치며 다음과 같이 접근했습니다.
 
 평소에 **공식 문서를 바탕으로 직접 코드를 치고 수정하는 방식**이 저에게는 기술을 습득하는 데 가장 빠르다고 생각합니다. 오픈 소스에도 제작자들이 만들어놓은 문서들이 있어 많은 도움이 되고 있습니다. 이렇게 새롭게 얻게 된 지식을 소화하기 위해 바로 코드베이스로 넘어가 확인했습니다.
 
+#### 2) depot_tools 사용하고 CDP 통신 연결하기
+
 코드베이스를 로컬 환경에서 구동되도록 설정하고 냅다 코드를 수정하기 위해서는 오픈 소스 제작자들이 사용하는 새로운 빌드 툴을 써야 합니다. 구글은 [depot_tools](https://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up)를 만들어 사용하고 있고 코드를 받고 빌드하는데 필수라 depot_tools 문서를 탐독하며 다시 여러 시행착오를 거치면서 설정을 진행했습니다.
 
-Chrome DevTools frontend 부분을 수정하지만 벡엔드와의 연결도 필요해 별도의 크롬을 remote-debugger-port로 열어 CDP 통신을 가능하게 해주는 웹소켓 주소를 얻어야 합니다. **해당 작업에 있어 3개의 터미널 창이 필요하고 복잡하고 긴 명령어를 매일 입력해야 하는 점이 번거롭게 느껴지는 순간이 있습니다. 이때 작업 환경 개선을 위해 Puppeteer를 사용해서 크롬을 조작하고 해당 명령을 Express을 사용해 API로 만들기도 했습니다.** 해당 API는 배포할 때도 요긴하게 사용할 수 있습니다.
+Chrome DevTools frontend 부분을 수정하지만 벡엔드와의 연결도 필요해 별도의 크롬을 remote-debugger-port로 열어 CDP 통신을 가능하게 해주는 웹소켓 주소를 얻어야 합니다. 해당 작업에 있어 3개의 터미널 창이 필요하고 복잡하고 긴 명령어를 매일 입력해야 하는 점이 번거롭게 느껴지는 순간이 있습니다. 이때 작업 환경 개선을 위해 Puppeteer를 사용해서 크롬을 조작하고 해당 명령을 Express을 사용해 API로 만들기도 했습니다. 해당 API는 배포할 때도 요긴하게 사용할 수 있습니다.
 
-### 코드 베이스 탐구 영역 한정
+### 2. 구글 크롬 오픈 소스 분석 방법
 
-실제로 작업할 수 있는 코드를 확보하고 오픈 소스 문서들을 비교해서 읽어보면서 그 방대함과 복잡함에 **저만의 기준을 세울 필요성**을 느끼는 순간이 있었습니다. 영향을 미칠 수 있는 영역을 한정하기 위해 제가 관심 있는 부분부터 선정했습니다.
+#### 1) 탐색할 기준 정의하기
+
+실제로 작업할 수 있는 코드를 확보하고 오픈 소스 문서들을 비교해서 읽어보면서 그 방대함과 복잡함에 **저만의 기준을 세울 필요성**을 느끼는 순간이 있었습니다. 현재 프로젝트에 필수적인 요소가 무엇일 지 궁리한 결과 관심 있는 부분을 다음과 같이 선정했습니다.
 
 - 사용자가 직관적으로 사용할 수 있는 버튼이 렌더링되고 있는 파일과 그 경로
 - CDP 통신을 요청하는 함수를 가져올 수 있는 경로
 
-위의 질문들에 스스로 답하기 위해 필요한 도구를 발견했습니다.
+소스 코드가 방대하므로 분석에 도움을 줄 도구가 필요했습니다. 기여 가이드 등에서 다음과 같은 도구들을 발견했습니다.
 
-- 디버거의 디버거
-- protocol monitor
+#### 2) 개발자 도구의 개발자 도구 활용하기
 
-개발자 도구는 웹 앱이기 때문에 **개발자 도구의 개발자 도구**를 열 수 있습니다. 1. 개발자도구의 Element 탭을 엽니다. 2. 오른쪽 상단의 점 세 개를 눌러 Dock side를 별도의 창으로 undock 합니다. 3. Element 탭이 제대로 작동하고 있는지 확인 후 cmd + option + I 를 누릅니다. 새로이 열린 디버거의 디버거를 통해 click 이벤트에 Event Listener Breakpoint를 겁니다. 기존 디버거의 step 버튼을 클릭한 후 paused 상태로 나타난 소스코드를 따라가면서 관심 있는 함수와 파일을 발견했습니다.
+개발자 도구는 웹 앱이기 때문에 개발자 도구의 개발자 도구를 열 수 있습니다. 1. 개발자도구의 Element 탭을 엽니다. 2. 오른쪽 상단의 점 세 개를 눌러 Dock side를 별도의 창으로 undock 합니다. 3. Element 탭이 제대로 작동하고 있는지 확인 후 cmd + option + I 를 누릅니다.
 
-개발자도구가 만드는 모든 CDP 요청과 응답을 [**protocol monitor**](https://developer.chrome.com/docs/devtools/protocol-monitor)로 직접 보고 요청도 할 수 있습니다. 1. 개발자 도구의 오른쪽 상단의 톱니바퀴 버튼을 클릭합니다. 2. Experiments에서 Protocol Monitor를 선택합니다. 3. 개발자 도구를 껐다가 켜고, 오른쪽 상단의 점 세 개를 눌러 More tools에서 Protocol Monitor를 선택합니다. protocol monitor를 사용하면서 step 버튼 클릭 시 어떤 요청과 응답이 발생하는지 추적할 수 있습니다. Chrome DevTools frontend가 CDP를 어떻게 활용하는지 확인합니다. 그리고 직접 간단한 요청을 보내면서 동작 원리를 체감했습니다.
+새로이 열린 디버거의 디버거를 통해 click 이벤트에 Event Listener Breakpoint를 겁니다. 기존 디버거의 step 버튼을 클릭한 후 paused 상태로 나타난 소스코드를 따라가면서 관심 있는 함수와 파일을 발견했습니다.
 
-이후 VSCode에서 제어 버튼을 렌더링하는 위치로 이동해 냅다 새로운 코드를 작성하고 타입 에러를 발생시켰습니다. 타입 에러를 잡으면서 먼저 버튼 팩토리 함수를 사용하는 방법을 습득했고 이어 자연스럽게 이벤트리스너 콜백에 접근하고, CDP 요청을 하는 함수가 특정 모델과 연결되어 있음을 인지하는 방식으로 진행했습니다. 결과적으로 SourcesPanel.ts 파일에서 작업하고 UI.Toolbar.ToolbarButton, SDK.RuntimeModel, SDK.DebuggerModel 등을 주로 활용하는 것에 초점을 맞췄습니다.
+#### 3) 프로토콜 모니터 활용하기
 
-### 기존 로직 활용 여부
+개발자도구가 만드는 모든 CDP 요청과 응답을 [protocol monitor](https://developer.chrome.com/docs/devtools/protocol-monitor)로 직접 보고 요청도 할 수 있습니다. 1. 개발자 도구의 오른쪽 상단의 톱니바퀴 버튼을 클릭합니다. 2. Experiments에서 Protocol Monitor를 선택합니다. 3. 개발자 도구를 껐다가 켜고, 오른쪽 상단의 점 세 개를 눌러 More tools에서 Protocol Monitor를 선택합니다.
 
-오픈소스로 작업하는 장점은 기존 코드베이스의 풍부한 함수들이라고 생각합니다. 핵심 기능 개발에 집중하기 위해 도움이 될 수도 있는 코드를 탐색했습니다.
+protocol monitor를 사용하면서 step 버튼 클릭 시 어떤 요청과 응답이 발생하는지 추적할 수 있습니다. Chrome DevTools frontend가 CDP를 어떻게 활용하는지 확인합니다. 그리고 직접 간단한 요청을 보내면서 동작 원리를 체감했습니다.
 
-실제로 호출하고 여러 인수를 넣어보면서 적용한 결과 활용성을 점쳐보았을 때 실제로 재활용한 로직은 버튼의 호버와 툴팁 등이 미리 설정되어 있는 툴바 버튼 팩토리 함수입니다.
+#### 4) 코드 수정하며 코드 레벨 이해하기
 
-그 이외의 액션 로직들은 커스텀이 들어가 있는 부분이 많아 재활용은 어려웠습니다. 대신 기존 로직에서 좀 더 로우 레벨의 함수 존재 여부와 특정 데이터를 얻을 수 있는 위치 등을 알아내는 데 활용했습니다. 그리고 해체해서 얻은 정보를 기반으로 원하는 기능이 첨가된 새로운 함수들을 생성했습니다.
+제어 버튼을 렌더링 하는 위치를 도구를 사용하여 알아낸 상황입니다. 해당 위치를 진입점처럼 활용하여 코드 흐름을 이해했습니다.
 
-## BackDo 기능 구현하기
+VSCode에서 제어 버튼을 렌더링하는 위치로 이동해 냅다 새로운 코드를 작성하고 타입 에러를 발생시켰습니다. 타입 에러를 잡으면서 먼저 버튼 팩토리 함수를 사용하는 방법을 습득했습니다. 그 결과 자연스럽게 이벤트리스너 콜백에 접근하고, CDP 요청을 하는 함수가 특정 모델과 연결되어 있음을 인지하는 방식으로 진행했습니다.
+
+결과적으로 프로젝트에서  SourcesPanel.ts 파일에서 작업하고 UI.Toolbar.ToolbarButton, SDK.RuntimeModel, SDK.DebuggerModel 등을 주로 활용하는 것에 초점을 맞췄습니다.
+
+### 3. 오픈 소스 기존 로직 활용
+
+오픈소스로 작업하는 장점은 기존 코드베이스의 풍부한 함수들이라고 생각합니다. 핵심 기능 개발에 집중하기 위해 도움이 될 수도 있는 코드를 탐색했습니다. 실제로 호출하고 여러 인수를 넣어보면서 적용시켜 보았습니다.
+
+활용성을 점쳐보았을 때 재활용한 함수는 버튼의 호버와 툴팁 등이 미리 설정되어 있는 툴바 버튼 팩토리 함수입니다.
+
+로직을 뜯어 보면서 얻은 정보를 기반으로, 원하는 기능이 첨가된 새로운 함수들을 생성하기도 했습니다. 액션 로직들은 커스텀이 들어가 있는 부분이 많아 재활용은 어려웠습니다. 대신 기존 로직에서 좀 더 로우 레벨의 함수 존재 여부와 특정 데이터를 얻을 수 있는 위치 등을 알아내는 데 활용했습니다.
+
+## 거꾸로 가기 기능 구현하기
 
 BackDo 기능은 디버거가 이전 줄의 위치에서 멈추도록 하는 기능입니다. 적절한 위치에 breakpoint를 부여합니다. 현재 실행 중인 함수를 다시 실행시키고 멈춰야 하는 위치에 도달할 때까지 재개시킵니다. BackDo 기능에서 가장 중요한 점은 디버거에게 멈춰야 하는 적절한 위치를 알리는 것입니다. 멈춰야 하는 적절한 위치를 선정할 때 고려해야 하는 점은 다음 3가지입니다.
 
-- 방향 : JavaScript 흐름에 맞춰야 합니다.
-- 정도 : 최소한의 정도로만 거꾸로 가야 합니다.
-- 범위 : 이동할 레벨을 한정시켜야 합니다.
+1. 방향 : JavaScript 흐름에 맞춰야 합니다.
+2. 정도 : 최소한의 정도로만 거꾸로 가야 합니다.
+3. 범위 : 이동할 레벨을 한정시켜야 합니다.
 
-### 방향 : JavaScript 흐름과 breakpoint 흐름 맞추기
+### 1. JavaScript 방향에 맞게 목적지 설정하기
 
 JavaScript 방향과 breakpoint의 방향은 같지 않을 때가 있습니다. 이를 맞추기 위해서 현재 위치를 감지하고 이동할 좌표를 얻었습니다. 그리고 이동할 좌표에 필요한 데이터를 취득한 후 이를 바탕으로 조건을 생성했습니다. 상황을 설명하기 위해 예시로 for 문을 들어보겠습니다.
 
-#### for 문의 흐름
+>
+> for 반복문의 파트별 명칭은 다음과 같습니다.
+>
+> - for 문 body: 중괄호({})로 감싸진 부분입니다.
+> - for 문 head: 소괄호(())로 감싸진 부분입니다.
+> - loop counter: initialization에서 선언한 변수 입니다. (예: i)
+>
+> ```js
+> for (initialization; condition; afterthought) {
+>   statement
+> }
+> ```
+>
 
 다음 이미지와 같이 for 문에서의 JavaScript 흐름과 breakpoint의 흐름은 매우 다릅니다. breakpoint는 위에서 아래로 순서대로 흐르고 단순히 나열만 되어 있습니다. 이와 반대로 JavaScript는 for 문에서 다음과 같은 특이점들이 있습니다.
 
@@ -170,7 +204,7 @@ JavaScript 방향과 breakpoint의 방향은 같지 않을 때가 있습니다. 
 
 위의 차이로 인해 문제상황이 발생하여 다음과 같이 해결했습니다.
 
-#### for 문 body와 조건 부여
+#### 1) for 문 body와 Conditional Breakpoint
 
 JavaScript 흐름을 고려하지 않았을 경우, breakpoint가 조건 없이 부여되어 loop counter가 0으로 리셋되는 문제가 발생합니다. 이에 현재의 loop counter를 취득해 조건을 부여한 Conditional Breakpoint로 만들어서 문제를 해결했습니다.
 
@@ -180,11 +214,11 @@ loop counter 취득은 callFrame 객체에 있는 scopeChain 배열 내부에서
 2. breakpoint는 2개를 나란히 부여해야 합니다.
 3. 조건은 문자열로 변환시켜서 부여해야 Conditional Breakpoint가 됩니다.
 
-현재 scope가 아닌 부모의 scope에 접근한 이유는 for 문의 initailzation part에서 let을 사용해 loop counter를 선언하면 별도의 렉시컬 스코프를 생성하기 때문입니다. 즉 디버거에서 for 문은 소괄호 부분(head)에 진입하자마자 block scope를 생성하고 중괄호 부분(body)에 진입하면 또 새로운 block scope를 생성합니다. 결과적으로 먼저 생성된 block scope에서 loop counter를 찾았습니다.
+**현재 scope가 아닌 부모의 scope에 접근한 이유는** for 문의 initailzation part에서 let을 사용해 loop counter를 선언하면 별도의 렉시컬 스코프를 생성하기 때문입니다. 즉 디버거에서 for 문은 소괄호 부분(head)에 진입하자마자 block scope를 생성하고 중괄호 부분(body)에 진입하면 또 새로운 block scope를 생성합니다. 결과적으로 먼저 생성된 block scope에서 loop counter를 찾았습니다.
 
-breakpoint를 2개 부여한 이유는 디버거에 암시적인 auto resumed 현상이 있기 때문입니다. 대표적인 예로 최상단 callFrame을 restart 할 경우 발생합니다. 이는 protocol monitor로 최상단 callFrame을 restart하여 관찰 하여 발견할 수 있었습니다. 때문에 첫 번째 breakpoint까지는 임의로 수동 resume를 시키고 두 번째 breakpoint까지는 resume하지 않았습니다. 자동으로 resumed 될 것이기 때문입니다.
+**breakpoint를 2개 부여한 이유는** 디버거에 암시적인 auto resumed 현상이 있기 때문입니다. 대표적인 예로 최상단 callFrame을 restart 할 경우 발생합니다. 이는 protocol monitor로 최상단 callFrame을 restart하여 관찰 하여 발견할 수 있었습니다. 때문에 첫 번째 breakpoint까지는 임의로 수동 resume를 시키고 두 번째 breakpoint까지는 resume하지 않았습니다. 자동으로 resumed 될 것이기 때문입니다.
 
-Conditional Breakpoint를 만들 때 조건을 부여하는 부분이 문자열로 변환되어야 하는 부분은 다소 의아했습니다. 이런저런 실험을 해본 결과 그 이유는 디버거가 내부적으로 표현식을 평가할 때 eval을 사용하고 있기 때문이라는 것을 발견했습니다. 디버거에 Conditional breakpoint를 부여할 때 throw Error()를 해서 다음과 같은 오류 메시지를 확인했습니다.
+**Conditional Breakpoint를 만들 때 조건을 부여하는 부분이 문자열로 변환되어야 하는 부분은** 다소 의아했습니다. 이런저런 실험을 해본 결과 그 이유는 디버거가 내부적으로 표현식을 평가할 때 eval을 사용하고 있기 때문이라는 것을 발견했습니다. 디버거에 Conditional breakpoint를 부여할 때 throw Error()를 해서 다음과 같은 오류 메시지를 확인했습니다.
 
 <p align="center" width="100%">
   <img width="33%" src="https://github.com/user-attachments/assets/0ee4b912-4e00-4bae-94f4-d8b21abf3582" />
@@ -192,7 +226,7 @@ Conditional Breakpoint를 만들 때 조건을 부여하는 부분이 문자열�
 
 오류 스택을 보면 at eval 부분이 있습니다. 그러므로 문자열로 표현해도 eval이 잘 통할 수 있게 조건을 만들어야 했고 결과적으로 loop counter의 이름과 value를 일치 연산자를 사용해 비교했습니다(예: `${key} === ${value}`를 백틱으로 감쌈).
 
-#### for 문 head의 afterthought part와 현재 위치
+#### 2) for 문 head의 afterthought part와 현재 위치
 
 JavaScript 흐름을 고려하지 않았을 경우, breakpoint 입장에서는 condtion part 이후에 afterthought part가 오는 흐름이기 때문에 문제가 발생합니다. BackDo 버튼 클릭 시 afterthought part에서 conditional part로 이동하는 문제입니다. for 문의 head의 일부분인 afterthought part에 위치해있다는 사실을 감지하고 for 문 body의 마지막 위치를 얻어내서 정상적인 위치, for 문 body의 마지막 줄로 이동시켜 해결했습니다.
 
@@ -201,22 +235,22 @@ afterthought part에 위치해있다는 사실은 searchInContent를 활용하�
 1. searchInContent는 스크립트에 내가 원하는 텍스트가 있는지 검색하고 싶을 때 사용할 수 있습니다.
 2. 현재 for 문의 body가 아니라 for 문의 head 부분에 있음에도 불구하고 body의 마지막 부분을 얻어낼 수 있습니다.
 
-debugger 도메인의 searchInContent는 스크립트에 내가 원하는 텍스트가 있는지 검색하고 싶을 때 사용할 수 있는데, 이때 정확성을 위해 간단하지만 정규식 문자열을 처음 배워 사용했습니다. Chrome DevTools frontend는 StringUtilities.ts 파일에 정규식 객체를 생성하는 createSearchRegex 유틸함수가 존재합니다. 해당 함수를 재활용해 보려 했으나 searchInContent는 문자열만 받기에 그대로 쓸 수는 없었습니다. 그리고 정규식을 사용할 때가 두 번 이상 없었기 때문에 import 하는 것도 내키지는 않았습니다. 그래서 createSearchRegex 함수를 보고 정규식이 어떻게 만들어지는지 flag가 뭔지 escape는 어떻게 시키는 지 등 감을 잡고 regexr.com와 같은 사이트에서 확인하면서 적용했습니다.
+**debugger 도메인의 searchInContent는** 스크립트에 내가 원하는 텍스트가 있는지 검색하고 싶을 때 사용할 수 있는데, 이때 정확성을 위해 간단하지만 정규식 문자열을 처음 배워 사용했습니다. Chrome DevTools frontend는 StringUtilities.ts 파일에 정규식 객체를 생성하는 createSearchRegex 유틸함수가 존재합니다. 해당 함수를 재활용해 보려 했으나 searchInContent는 문자열만 받기에 그대로 쓸 수는 없었습니다. 그리고 정규식을 사용할 때가 두 번 이상 없었기 때문에 import 하는 것도 내키지는 않았습니다. 그래서 createSearchRegex 함수를 보고 정규식이 어떻게 만들어지는지 flag가 뭔지 escape는 어떻게 시키는 지 등 감을 잡고 regexr.com와 같은 사이트에서 확인하면서 적용했습니다.
 
-현재 for 문의 head 부분에 있음에도 불구하고 body의 마지막 부분을 얻어낼 수 있는 것은 처음에는 다소 의아했습니다. 그러나 head의 소괄호 부분만 영역으로 삼지 않고 전체 for 문을 영역으로 삼는 것은 생각해 보니 당연했습니다. 그렇기 때문에 loop counter를 i라고 했을 때, for 문 body 몇 번째 줄에서든 i를 참조해서 자유롭게 쓸 수 있었던 것입니다. 결론적으로 만약에 for 문 body에 위치한다면, scopeChain이 다음과 같은 모습이라는 것은 새로운 발견이었습니다. 첫 번째 사진의 파란 영역은 최상단 scope로 for 문 body 부분입니다. 두 번째 사진은 부모 scope로 for 문의 head 부분에 진입 시 만들어집니다.
+**현재 for 문의 head 부분에 있음에도 불구하고** body의 마지막 부분을 얻어낼 수 있는 것은 처음에는 다소 의아했습니다. 그러나 head의 소괄호 부분만 영역으로 삼지 않고 전체 for 문을 영역으로 삼는 것은 생각해 보니 당연했습니다. 그렇기 때문에 loop counter를 i라고 했을 때, for 문 body 몇 번째 줄에서든 i를 참조해서 자유롭게 쓸 수 있었던 것입니다. 결론적으로 만약에 for 문 body에 위치한다면, scopeChain이 다음과 같은 모습이라는 것은 새로운 발견이었습니다. 첫 번째 사진의 파란 영역은 최상단 scope로 for 문 body 부분입니다. 두 번째 사진은 부모 scope로 for 문의 head 부분에 진입 시 만들어집니다.
 
 <img src="https://github.com/user-attachments/assets/9a1a9859-f6c5-4f48-80cf-86c3a8953aad" width="300px"> | <img src="https://github.com/user-attachments/assets/99f631d5-209c-4da3-bc4f-a0c3c25f081f" width="300px">
 ---|---|
 
-#### for 문 head의 condition part와 세 가지 상태
+#### 3) for 문 head의 condition part와 세 가지 상태
 
-JavaScript 흐름을 고려하지 않았을 경우, breakpoint 입장에서는 initialization part 이후에 condition part가 오는 흐름이기 때문에 문제가 발생합니다. BackDo 버튼 클릭 시 condition part에서 무조건(몇 번째 순회인지 고려 없이) initialization part로 이동하는 문제입니다. 코드의 흐름을 추적해 loop counter의 현재값, 초기값, 이전값을 알아내 상황에 맞는 Conditional Breakpoint를 정상적 흐름의 part에 부여하여 문제를 해결했습니다.
+JavaScript 흐름을 고려하지 않았을 경우, breakpoint 입장에서는 initialization part 이후에 condition part가 오는 흐름이기 때문에 문제가 발생합니다. BackDo 버튼 클릭 시 condition part에서 무조건(몇 번째 순회인지 고려 없이) initialization part로 이동하는 문제입니다. 코드의 흐름을 추적해 loop counter의 **현재값, 초기값, 이전값**을 알아내 상황에 맞는 Conditional Breakpoint를 정상적 흐름의 part에 부여하여 문제를 해결했습니다.
 
 자세한 정상적인 흐름은 다름과 같습니다. condition part에서 BackDo 버튼 클릭 시, loop counter가 초기값일 경우에는 initialization part로 이동하고, 초기값이 아닐 경우에는 afterthought part로 이동해야 합니다. 방향이 2가지이며 특히 후자의 경우에는 현재의 loop counter가 아닌 이전의 loop counter를 가진 afterthought로 이동해야 합니다. 그러므로 loop counter의 현재값, 초기값, 이전값을 알아내는 것이 중요했습니다.
 
-- loop counter의 현재값은 현재 scope에서 취득 후 저장했습니다.
-- loop counter의 초기값은 조건 없이 condition part에 breakpoint를 건 다음 실행시키고 멈추게 해서 해당 위치에서 얻었습니다.
-- loop counter의 이전값은 임의로 loop counter가 현재값에 도달할 때까지 loop를 실행시키고, 그 과정에서 loop counter를 수집하다가, 현재값에 도달했다는 것을 알게 되면 그 직전의 loop counter를 이전값으로 취급했습니다.
+- loop counter의 **현재값**은 현재 scope에서 취득 후 저장했습니다.
+- loop counter의 **초기값**은 조건 없이 condition part에 breakpoint를 건 다음 실행시키고 멈추게 해서 해당 위치에서 얻었습니다.
+- loop counter의 **이전값**은 임의로 loop counter가 현재값에 도달할 때까지 loop를 실행시키고, 그 과정에서 loop counter를 수집하다가, 현재값에 도달했다는 것을 알게 되면 그 직전의 loop counter를 이전값으로 취급했습니다.
 
 Conditional Breakpoint는 다음과 같이 지정했습니다.
 
@@ -229,7 +263,7 @@ continueToLocation은 resume와 달리 위치를 함께 전달하여 해당 위�
 
 hitBreakpoints는 debugger 모델에서 찾을 수 있는 속성입니다. 현재 멈춰있는 부분이 기존 breakpoint가 지정된 위치라면 해당 breakpointId를 표시하여 알려줍니다. 일일이 행과 열 숫자를 기억하여 비교하지 않아도 되어서 작업 속도를 올릴 수 있었습니다.
 
-### 정도 : 거꾸로 가야하는 최소한의 정도를 구하기
+### 2. 도달 할 수 있는 최소한의 정도를 구하기
 
 <p align="center" width="100%">
   <img width="50%" alt="최소한의 정도" src="https://github.com/user-attachments/assets/3697512f-df2e-44e7-98db-705b554cdca1" />
@@ -237,7 +271,7 @@ hitBreakpoints는 debugger 모델에서 찾을 수 있는 속성입니다. 현�
 
 방향이 동일해도 정도의 차이, 거리의 차이가 있어서 도달하지 못한다고 판정될 수 있는 부분이 있습니다. 도달하지 못하는 부분에 breakpoint를 주면 거칠 수 없으므로 유명무실해져 해당 지점에 멈출 수가 없습니다. 최소한의 정도로만 방향에 맞게 거꾸로 가야 하는 것이 필요했습니다. 사전에 시뮬레이션하고 시뮬레이션 결과를 받아서 적용할 수 있을지 아니면 더 먼 거리로 보내야 할 지 판단하는 과정을 추가해서 해결했습니다.
 
-#### 한 단계 이전을 적용하여 시뮬레이션 실행
+#### 1) 한 단계 이전을 적용하여 시뮬레이션 실행
 
 거꾸로 가야 하는 최소한의 정도를 구하기 위해서 우선 함수 소스를 얻어서 가공하여 시뮬레이션 돌릴 즉시실행함수를 만들었습니다. 해당 과정을 좀 더 단계를 나누면 다음과 같은 과정으로 진행했습니다.
 
@@ -268,11 +302,11 @@ hitBreakpoints는 debugger 모델에서 찾을 수 있는 속성입니다. 현�
 
 결론적으로 개발자도구 자체적으로 함수 내부에서 함수 이름을 참조하거나, 전역에 선언해 사전에 미리 알린 경우가 아니라면 함수 이름에 접근하고자 할 때 not available 입니다. 사용자에게 중첩 함수를 선언할 때는 함수 내부에서 함수 이름을 참조하라는 특이한(?) 규칙을 지키라고 하기에도 어렵습니다. 사용자를 대신해서 behind since에서 식별자를 심는 것도 예상하지 못한 다른 부작용을 야기할 것 같아 우려됩니다. 이런 과정을 거친 끝에, 생각을 전환하게 되었고 상위 callFrame(outter)이 가동 중일 때는 다른 변수들과 같이 함수 이름(inner)을 발견할 수 있음에서 착안해, 조금 돌아가는 것 같아도 스택을 파헤쳐서 안전한 데이터를 얻어오게 되었습니다.
 
-#### 시뮬레이션 결과 판별과 반복할지 여부 결정
+#### 2) 시뮬레이션 결과 판별과 반복할지 여부 결정
 
 앞서서 현재 실행 중인 함수의 내부 소스를 얻어 표식을 심은 후 즉시실행 함수로 실행했습니다. 즉시실행 함수로 실행할 때 debugger 도메인의 evaluateOnCallFrame를 사용했고 반환값으로 응답 결과를 얻었습니다. 결과가 표식에 맞게 result true가 나올 경우 해당 위치는 거꾸로 갈 수 있는 최소한의 거리에 존재하는 breakpoint입니다.  반면에 응답 결과에 표식이 존재하지 않을 경우, 해당 위치는 갈 수 없는 유명무실한 breakpoint입니다. 이에 그다음으로 가까운 거리에 다시 표식을 심고 시뮬레이션을 반복합니다.
 
-### 범위 : 이동할 레벨을 한정시키기
+### 3. 범위를 지정해 이동할 레벨을 한정시키기
 
 사용가능한 breakpoint들을 debugger 모델의 getPossibleBreakpoints로 가져오게 되면 전체 스크립트들을 대상으로 breakpoint 목록들을 받습니다. 함수 스코프가 지켜지지 않는 문제가 발생했고 이를 해결하기 위해 restrictToFunction 옵션을 찾아 적용했습니다. restrictToFunction 옵션은 중첩 선언된 함수를 제외하고 현재 함수에 속해 있는 breakpoint들만을 얻을 수 있게 합니다.
 
@@ -280,9 +314,9 @@ hitBreakpoints는 debugger 모델에서 찾을 수 있는 속성입니다. 현�
   <img width="50%" alt="이동할 수 있는 레벨" src="https://github.com/user-attachments/assets/99f03ac9-6016-489e-82d0-e803c7170c27" />
 </p>
 
-## Chrome에서 WebSocket URL 얻기
+## CDP 관련 API 및 스크립트 구현하기
 
-Chrome을 remote-debugger-port 플래그와 함께 열면 Chrome DevTools Protocol(CDP) server가 시작되고 WebSocket URL을 얻을 수 있습니다. Chrome DevTools frontend가 WebSocket URL을 대상으로 연결하면 CDP 명령을 전송할 수 있게 됩니다. 해당 과정에 대해 공식 문서에서는 다음과 같은 긴 명령어를 알려줍니다. 해당 명령어는 치기에는 너무 길어서 기억하기에는 어려웠던 것이 문제였습니다. 이에 가독성과 편의성 상승, 추후 확장 가능성을 위해 Puppeteer와 Express를 도입해서 API를 생성했습니다. 그리고 간단한 명령어를 만들어서 사용성을 보다 개선했습니다.
+Chrome을 remote-debugger-port 플래그와 함께 열면 Chrome DevTools Protocol(CDP) server가 시작되고 WebSocket URL을 얻을 수 있습니다. Chrome DevTools frontend가 WebSocket URL을 대상으로 연결하면 CDP 명령을 전송할 수 있게 됩니다. 해당 과정에 대해 공식 문서에서는 다음과 같은 긴 명령어를 알려줍니다. 해당 명령어는 치기에는 너무 길어서 기억하기에는 어려웠던 것이 문제였습니다. 이에 가독성과 편의성 상승, 추후 확장 가능성을 위해 Puppeteer와 Express를 도입해서 API를 생성했습니다. 그리고 간단한 스크립트 명령어를 만들어서 사용성을 보다 개선했습니다.
 
 ![Group 7](https://github.com/user-attachments/assets/e6b85d17-a627-47ce-a6fd-165acf5cb5ee)
 
