@@ -63,7 +63,7 @@ BackDo는 resume 버튼으로 지나쳤다거나, step을 누르면서 지나쳤
 ## for 문에서 거꾸로 가기
 
 > for 반복문의 파트별 명칭은 다음과 같습니다.
-> 
+>
 > - for 문 body: 중괄호({})로 감싸진 부분입니다.
 > - for 문 head: 소괄호(())로 감싸진 부분입니다.
 > - loop counter: initialization에서 선언한 변수 입니다. (예: i)
@@ -352,17 +352,17 @@ hitBreakpoints는 debugger 모델에서 찾을 수 있는 속성입니다. 현�
 
 다음과 같이 기존 디버거 콘솔에서도 접근할 수 없고 Watch 부분에서 식별자를 보아도 접근 할 수 없는 상태임이 확인됩니다.
 
-|현재 promiseCallback 이라는 함수 내부에서 멈춰져 있을 때, 콘솔 탭에서 해당 함수이름에 대해 참조 오류가 발생하는 모습|현재 banana라는 함수 내부에서 멈춰져 있을 때, Watch 부분에서 식별자 banana가 not available인 모습|
-|---|---|
-<img width="1452" alt="스크린샷 2025-02-21 오후 6 33 44" src="https://github.com/user-attachments/assets/cd1ad61d-175f-4b6d-947c-2135456d3a69" /> | <img width="1354" alt="스크린샷 2025-02-21 오후 7 39 29" src="https://github.com/user-attachments/assets/8c7879b3-00b4-43c8-8365-a63bff186aee" />
+<p align="center">
+  <img width="581" alt="스크린샷 2025-07-03 오후 8 42 02" src="https://github.com/user-attachments/assets/70b8acb1-c072-4d6c-8d55-c693d1f595ef" />
+</p>
 
-#### 2-2. 예외적 접근 가능 사례: 내부 참조 또는 전역 선언이 존재할 때만 접근 가능
+#### 2-2. 예외적 접근 가능 사례: 전역에서 선언 했거나 내부 참조가 존재할 때만 접근 가능
 
 재귀가 가능한 이유를 찾기 위해 여러 실험을 거친 결과 함수내부에서 함수 이름을 찾을 수 있는 다음 두 가지의 경우를 발견했습니다.
 
-|최상단 레벨인 script에서 해당 함수 선언을 이미 해서 사전에 한 번 디버거가 인지했을 경우|함수 내부에서 함수 이름 참조를 사용할 경우|
-|---|---|
-<img width="605" alt="스크린샷 2025-02-21 오후 10 43 44" src="https://github.com/user-attachments/assets/51d3eecb-d652-4e1d-a180-e28028000227" />|<img width="626" alt="스크린샷 2025-02-21 오후 10 47 43" src="https://github.com/user-attachments/assets/98e97fac-02aa-4103-8066-ba95fcd13f10" />
+<p align="center">
+  <img width="449" alt="스크린샷 2025-07-03 오후 9 35 57" src="https://github.com/user-attachments/assets/ec0bafef-8c5a-4b87-b8b5-0c2609f1948b" />
+</p>
 
 #### 2-3. 해결: 상위 callFrame으로 접근하여 안전하게 함수 이름 획득
 
@@ -370,7 +370,7 @@ hitBreakpoints는 debugger 모델에서 찾을 수 있는 속성입니다. 현�
 
 groups.google.com에서 안내하는 우회 방법은 예외를 생성하고 검사해서 스택을 파헤치는 방법입니다. 그러나 이는 비용이 많이 드는 방법이며 런타임에 함수 내부에서 함수의 이름을 파악하기는 어렵다고 첨언했습니다.
 
-결론적으로 개발자도구 자체적으로 함수 내부에서 함수 이름을 참조하거나, 전역에 선언해 사전에 미리 알린 경우가 아니라면 함수 이름에 접근하고자 할 때 not available 입니다.
+결론적으로 개발자도구 자체적으로 함수 내부에서 함수 이름을 참조하거나, 전역에 선언한 경우가 아니라면 함수 이름에 접근하고자 할 때 not available 입니다.
 
 사용자 경험을 고려했을 때, 사용자에게 중첩 함수를 선언할 때는 함수 내부에서 함수 이름을 참조하라는 특이한(?) 규칙을 지키라고 하기에도 어렵습니다. 사용자를 대신해서 behind since에서 식별자를 심는 것도 예상하지 못한 다른 부작용을 야기할 것 같아 우려됩니다.
 
