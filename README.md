@@ -13,37 +13,37 @@
 <!-- toc -->
 
 - [아이디어 선정 배경](#%EC%95%84%EC%9D%B4%EB%94%94%EC%96%B4-%EC%84%A0%EC%A0%95-%EB%B0%B0%EA%B2%BD)
-  * [디버거에서 앞으로 가기가 있는 데, 왜 거꾸로 가기는 없는 지에 대한 의문](#%EB%94%94%EB%B2%84%EA%B1%B0%EC%97%90%EC%84%9C-%EC%95%9E%EC%9C%BC%EB%A1%9C-%EA%B0%80%EA%B8%B0%EA%B0%80-%EC%9E%88%EB%8A%94-%EB%8D%B0-%EC%99%9C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0%EB%8A%94-%EC%97%86%EB%8A%94-%EC%A7%80%EC%97%90-%EB%8C%80%ED%95%9C-%EC%9D%98%EB%AC%B8)
-  * [자유롭게 거꾸로 가고, 이후에는 새로운 경로로 탐색 희망](#%EC%9E%90%EC%9C%A0%EB%A1%AD%EA%B2%8C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B3%A0-%EC%9D%B4%ED%9B%84%EC%97%90%EB%8A%94-%EC%83%88%EB%A1%9C%EC%9A%B4-%EA%B2%BD%EB%A1%9C%EB%A1%9C-%ED%83%90%EC%83%89-%ED%9D%AC%EB%A7%9D)
+  - [디버거에서 앞으로 가기가 있는 데, 왜 거꾸로 가기는 없는 지에 대한 의문](#%EB%94%94%EB%B2%84%EA%B1%B0%EC%97%90%EC%84%9C-%EC%95%9E%EC%9C%BC%EB%A1%9C-%EA%B0%80%EA%B8%B0%EA%B0%80-%EC%9E%88%EB%8A%94-%EB%8D%B0-%EC%99%9C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0%EB%8A%94-%EC%97%86%EB%8A%94-%EC%A7%80%EC%97%90-%EB%8C%80%ED%95%9C-%EC%9D%98%EB%AC%B8)
+  - [자유롭게 거꾸로 가고, 이후에는 새로운 경로로 탐색 희망](#%EC%9E%90%EC%9C%A0%EB%A1%AD%EA%B2%8C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B3%A0-%EC%9D%B4%ED%9B%84%EC%97%90%EB%8A%94-%EC%83%88%EB%A1%9C%EC%9A%B4-%EA%B2%BD%EB%A1%9C%EB%A1%9C-%ED%83%90%EC%83%89-%ED%9D%AC%EB%A7%9D)
 - [기능](#%EA%B8%B0%EB%8A%A5)
-  * [for 문에서 거꾸로 가기](#for-%EB%AC%B8%EC%97%90%EC%84%9C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0)
-  * [if 문에서 거꾸로 가기](#if-%EB%AC%B8%EC%97%90%EC%84%9C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0)
-  * [함수에서 거꾸로 가기](#%ED%95%A8%EC%88%98%EC%97%90%EC%84%9C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0)
+  - [for 문에서 거꾸로 가기](#for-%EB%AC%B8%EC%97%90%EC%84%9C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0)
+  - [if 문에서 거꾸로 가기](#if-%EB%AC%B8%EC%97%90%EC%84%9C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0)
+  - [함수에서 거꾸로 가기](#%ED%95%A8%EC%88%98%EC%97%90%EC%84%9C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0)
 - [기술 스택](#%EA%B8%B0%EC%88%A0-%EC%8A%A4%ED%83%9D)
 - [개발 과정 중 챌린지 요소](#%EA%B0%9C%EB%B0%9C-%EA%B3%BC%EC%A0%95-%EC%A4%91-%EC%B1%8C%EB%A6%B0%EC%A7%80-%EC%9A%94%EC%86%8C)
-  * [크롬 오픈소스 코드에 빠르게 적응하기](#%ED%81%AC%EB%A1%AC-%EC%98%A4%ED%94%88%EC%86%8C%EC%8A%A4-%EC%BD%94%EB%93%9C%EC%97%90-%EB%B9%A0%EB%A5%B4%EA%B2%8C-%EC%A0%81%EC%9D%91%ED%95%98%EA%B8%B0)
-    + [1. 구글 크롬 오픈 소스 로컬 작업 준비하기](#1-%EA%B5%AC%EA%B8%80-%ED%81%AC%EB%A1%AC-%EC%98%A4%ED%94%88-%EC%86%8C%EC%8A%A4-%EB%A1%9C%EC%BB%AC-%EC%9E%91%EC%97%85-%EC%A4%80%EB%B9%84%ED%95%98%EA%B8%B0)
-    + [2. 구글 크롬 오픈 소스 분석 방법](#2-%EA%B5%AC%EA%B8%80-%ED%81%AC%EB%A1%AC-%EC%98%A4%ED%94%88-%EC%86%8C%EC%8A%A4-%EB%B6%84%EC%84%9D-%EB%B0%A9%EB%B2%95)
-    + [3. 오픈 소스 기존 로직 활용](#3-%EC%98%A4%ED%94%88-%EC%86%8C%EC%8A%A4-%EA%B8%B0%EC%A1%B4-%EB%A1%9C%EC%A7%81-%ED%99%9C%EC%9A%A9)
-  * [디버거에 거꾸로 가기 기능 구현하기](#%EB%94%94%EB%B2%84%EA%B1%B0%EC%97%90-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0-%EA%B8%B0%EB%8A%A5-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
-    + [1. 이전 위치에서 디버거를 멈추게 하는 기능](#1-%EC%9D%B4%EC%A0%84-%EC%9C%84%EC%B9%98%EC%97%90%EC%84%9C-%EB%94%94%EB%B2%84%EA%B1%B0%EB%A5%BC-%EB%A9%88%EC%B6%94%EA%B2%8C-%ED%95%98%EB%8A%94-%EA%B8%B0%EB%8A%A5)
-    + [2. 멈춰야 하는 위치 선정시 고려해야 할 3가지 요소](#2-%EB%A9%88%EC%B6%B0%EC%95%BC-%ED%95%98%EB%8A%94-%EC%9C%84%EC%B9%98-%EC%84%A0%EC%A0%95%EC%8B%9C-%EA%B3%A0%EB%A0%A4%ED%95%B4%EC%95%BC-%ED%95%A0-3%EA%B0%80%EC%A7%80-%EC%9A%94%EC%86%8C)
-  * [JavaScript 흐름에 맞는 목적지 설정](#javascript-%ED%9D%90%EB%A6%84%EC%97%90-%EB%A7%9E%EB%8A%94-%EB%AA%A9%EC%A0%81%EC%A7%80-%EC%84%A4%EC%A0%95)
-    + [1. for 문의 흐름 분석: body와 head, 그리고 loop](#1-for-%EB%AC%B8%EC%9D%98-%ED%9D%90%EB%A6%84-%EB%B6%84%EC%84%9D-body%EC%99%80-head-%EA%B7%B8%EB%A6%AC%EA%B3%A0-loop)
-    + [2. 문제: for 문 body에서 조건 없는 Breakpoint로 인한 loop counter 초기화](#2-%EB%AC%B8%EC%A0%9C-for-%EB%AC%B8-body%EC%97%90%EC%84%9C-%EC%A1%B0%EA%B1%B4-%EC%97%86%EB%8A%94-breakpoint%EB%A1%9C-%EC%9D%B8%ED%95%9C-loop-counter-%EC%B4%88%EA%B8%B0%ED%99%94)
-    + [3. 문제: for 문 head의 afterthought part에서 condition part로 잘못 이동](#3-%EB%AC%B8%EC%A0%9C-for-%EB%AC%B8-head%EC%9D%98-afterthought-part%EC%97%90%EC%84%9C-condition-part%EB%A1%9C-%EC%9E%98%EB%AA%BB-%EC%9D%B4%EB%8F%99)
-    + [4. 문제: for 문 head의 condition part에서 무조건 initialization part로 이동](#4-%EB%AC%B8%EC%A0%9C-for-%EB%AC%B8-head%EC%9D%98-condition-part%EC%97%90%EC%84%9C-%EB%AC%B4%EC%A1%B0%EA%B1%B4-initialization-part%EB%A1%9C-%EC%9D%B4%EB%8F%99)
-  * [도달 가능한 최소한의 정도만 거꾸로 가기](#%EB%8F%84%EB%8B%AC-%EA%B0%80%EB%8A%A5%ED%95%9C-%EC%B5%9C%EC%86%8C%ED%95%9C%EC%9D%98-%EC%A0%95%EB%8F%84%EB%A7%8C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0)
-    + [1. 문제: 실제로 도달 가능한 breakpoint인지 식별 불가](#1-%EB%AC%B8%EC%A0%9C-%EC%8B%A4%EC%A0%9C%EB%A1%9C-%EB%8F%84%EB%8B%AC-%EA%B0%80%EB%8A%A5%ED%95%9C-breakpoint%EC%9D%B8%EC%A7%80-%EC%8B%9D%EB%B3%84-%EB%B6%88%EA%B0%80)
-    + [2. 문제: 오픈 소스 특성으로 인해 함수 내부에서 함수 이름 식별자에 접근 불가](#2-%EB%AC%B8%EC%A0%9C-%EC%98%A4%ED%94%88-%EC%86%8C%EC%8A%A4-%ED%8A%B9%EC%84%B1%EC%9C%BC%EB%A1%9C-%EC%9D%B8%ED%95%B4-%ED%95%A8%EC%88%98-%EB%82%B4%EB%B6%80%EC%97%90%EC%84%9C-%ED%95%A8%EC%88%98-%EC%9D%B4%EB%A6%84-%EC%8B%9D%EB%B3%84%EC%9E%90%EC%97%90-%EC%A0%91%EA%B7%BC-%EB%B6%88%EA%B0%80)
-  * [범위를 지정해 이동할 레벨을 한정시키기](#%EB%B2%94%EC%9C%84%EB%A5%BC-%EC%A7%80%EC%A0%95%ED%95%B4-%EC%9D%B4%EB%8F%99%ED%95%A0-%EB%A0%88%EB%B2%A8%EC%9D%84-%ED%95%9C%EC%A0%95%EC%8B%9C%ED%82%A4%EA%B8%B0)
-    + [1. 문제: 스코프 구분 없이 전체 스크립트를 대상으로 breakpoint를 잡는 현상](#1-%EB%AC%B8%EC%A0%9C-%EC%8A%A4%EC%BD%94%ED%94%84-%EA%B5%AC%EB%B6%84-%EC%97%86%EC%9D%B4-%EC%A0%84%EC%B2%B4-%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EB%A5%BC-%EB%8C%80%EC%83%81%EC%9C%BC%EB%A1%9C-breakpoint%EB%A5%BC-%EC%9E%A1%EB%8A%94-%ED%98%84%EC%83%81)
-    + [2. 해결: restrictToFunction 옵션으로 현재 함수 내부로만 제한](#2-%ED%95%B4%EA%B2%B0-restricttofunction-%EC%98%B5%EC%85%98%EC%9C%BC%EB%A1%9C-%ED%98%84%EC%9E%AC-%ED%95%A8%EC%88%98-%EB%82%B4%EB%B6%80%EB%A1%9C%EB%A7%8C-%EC%A0%9C%ED%95%9C)
-  * [Chrome DevTools Protocol(CDP) API 및 스크립트 구현하기](#chrome-devtools-protocolcdp-api-%EB%B0%8F-%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
-    + [1. Chrome DevTools Protocol(CDP) 연결 원리](#1-chrome-devtools-protocolcdp-%EC%97%B0%EA%B2%B0-%EC%9B%90%EB%A6%AC)
-    + [2. 개발자 경험 향상의 필요성과 그 결과](#2-%EA%B0%9C%EB%B0%9C%EC%9E%90-%EA%B2%BD%ED%97%98-%ED%96%A5%EC%83%81%EC%9D%98-%ED%95%84%EC%9A%94%EC%84%B1%EA%B3%BC-%EA%B7%B8-%EA%B2%B0%EA%B3%BC)
-    + [3. API 및 스크립트 구현 과정](#3-api-%EB%B0%8F-%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8-%EA%B5%AC%ED%98%84-%EA%B3%BC%EC%A0%95)
-    + [4. Chrome의 multi-process 전략 응용](#4-chrome%EC%9D%98-multi-process-%EC%A0%84%EB%9E%B5-%EC%9D%91%EC%9A%A9)
+  - [크롬 오픈소스 코드에 빠르게 적응하기](#%ED%81%AC%EB%A1%AC-%EC%98%A4%ED%94%88%EC%86%8C%EC%8A%A4-%EC%BD%94%EB%93%9C%EC%97%90-%EB%B9%A0%EB%A5%B4%EA%B2%8C-%EC%A0%81%EC%9D%91%ED%95%98%EA%B8%B0)
+    - [1. 구글 크롬 오픈 소스 로컬 작업 준비하기](#1-%EA%B5%AC%EA%B8%80-%ED%81%AC%EB%A1%AC-%EC%98%A4%ED%94%88-%EC%86%8C%EC%8A%A4-%EB%A1%9C%EC%BB%AC-%EC%9E%91%EC%97%85-%EC%A4%80%EB%B9%84%ED%95%98%EA%B8%B0)
+    - [2. 구글 크롬 오픈 소스 분석 방법](#2-%EA%B5%AC%EA%B8%80-%ED%81%AC%EB%A1%AC-%EC%98%A4%ED%94%88-%EC%86%8C%EC%8A%A4-%EB%B6%84%EC%84%9D-%EB%B0%A9%EB%B2%95)
+    - [3. 오픈 소스 기존 로직 활용](#3-%EC%98%A4%ED%94%88-%EC%86%8C%EC%8A%A4-%EA%B8%B0%EC%A1%B4-%EB%A1%9C%EC%A7%81-%ED%99%9C%EC%9A%A9)
+  - [디버거에 거꾸로 가기 기능 구현하기](#%EB%94%94%EB%B2%84%EA%B1%B0%EC%97%90-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0-%EA%B8%B0%EB%8A%A5-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
+    - [1. 이전 위치에서 디버거를 멈추게 하는 기능](#1-%EC%9D%B4%EC%A0%84-%EC%9C%84%EC%B9%98%EC%97%90%EC%84%9C-%EB%94%94%EB%B2%84%EA%B1%B0%EB%A5%BC-%EB%A9%88%EC%B6%94%EA%B2%8C-%ED%95%98%EB%8A%94-%EA%B8%B0%EB%8A%A5)
+    - [2. 멈춰야 하는 위치 선정시 고려해야 할 3가지 요소](#2-%EB%A9%88%EC%B6%B0%EC%95%BC-%ED%95%98%EB%8A%94-%EC%9C%84%EC%B9%98-%EC%84%A0%EC%A0%95%EC%8B%9C-%EA%B3%A0%EB%A0%A4%ED%95%B4%EC%95%BC-%ED%95%A0-3%EA%B0%80%EC%A7%80-%EC%9A%94%EC%86%8C)
+  - [JavaScript 흐름에 맞는 목적지 설정](#javascript-%ED%9D%90%EB%A6%84%EC%97%90-%EB%A7%9E%EB%8A%94-%EB%AA%A9%EC%A0%81%EC%A7%80-%EC%84%A4%EC%A0%95)
+    - [1. for 문의 흐름 분석: body와 head, 그리고 loop](#1-for-%EB%AC%B8%EC%9D%98-%ED%9D%90%EB%A6%84-%EB%B6%84%EC%84%9D-body%EC%99%80-head-%EA%B7%B8%EB%A6%AC%EA%B3%A0-loop)
+    - [2. 문제: for 문 body에서 조건 없는 Breakpoint로 인한 loop counter 초기화](#2-%EB%AC%B8%EC%A0%9C-for-%EB%AC%B8-body%EC%97%90%EC%84%9C-%EC%A1%B0%EA%B1%B4-%EC%97%86%EB%8A%94-breakpoint%EB%A1%9C-%EC%9D%B8%ED%95%9C-loop-counter-%EC%B4%88%EA%B8%B0%ED%99%94)
+    - [3. 문제: for 문 head의 afterthought part에서 condition part로 잘못 이동](#3-%EB%AC%B8%EC%A0%9C-for-%EB%AC%B8-head%EC%9D%98-afterthought-part%EC%97%90%EC%84%9C-condition-part%EB%A1%9C-%EC%9E%98%EB%AA%BB-%EC%9D%B4%EB%8F%99)
+    - [4. 문제: for 문 head의 condition part에서 무조건 initialization part로 이동](#4-%EB%AC%B8%EC%A0%9C-for-%EB%AC%B8-head%EC%9D%98-condition-part%EC%97%90%EC%84%9C-%EB%AC%B4%EC%A1%B0%EA%B1%B4-initialization-part%EB%A1%9C-%EC%9D%B4%EB%8F%99)
+  - [도달 가능한 최소한의 정도만 거꾸로 가기](#%EB%8F%84%EB%8B%AC-%EA%B0%80%EB%8A%A5%ED%95%9C-%EC%B5%9C%EC%86%8C%ED%95%9C%EC%9D%98-%EC%A0%95%EB%8F%84%EB%A7%8C-%EA%B1%B0%EA%BE%B8%EB%A1%9C-%EA%B0%80%EA%B8%B0)
+    - [1. 문제: 실제로 도달 가능한 breakpoint인지 식별 불가](#1-%EB%AC%B8%EC%A0%9C-%EC%8B%A4%EC%A0%9C%EB%A1%9C-%EB%8F%84%EB%8B%AC-%EA%B0%80%EB%8A%A5%ED%95%9C-breakpoint%EC%9D%B8%EC%A7%80-%EC%8B%9D%EB%B3%84-%EB%B6%88%EA%B0%80)
+    - [2. 문제: 오픈 소스 특성으로 인해 함수 내부에서 함수 이름 식별자에 접근 불가](#2-%EB%AC%B8%EC%A0%9C-%EC%98%A4%ED%94%88-%EC%86%8C%EC%8A%A4-%ED%8A%B9%EC%84%B1%EC%9C%BC%EB%A1%9C-%EC%9D%B8%ED%95%B4-%ED%95%A8%EC%88%98-%EB%82%B4%EB%B6%80%EC%97%90%EC%84%9C-%ED%95%A8%EC%88%98-%EC%9D%B4%EB%A6%84-%EC%8B%9D%EB%B3%84%EC%9E%90%EC%97%90-%EC%A0%91%EA%B7%BC-%EB%B6%88%EA%B0%80)
+  - [범위를 지정해 이동할 레벨을 한정시키기](#%EB%B2%94%EC%9C%84%EB%A5%BC-%EC%A7%80%EC%A0%95%ED%95%B4-%EC%9D%B4%EB%8F%99%ED%95%A0-%EB%A0%88%EB%B2%A8%EC%9D%84-%ED%95%9C%EC%A0%95%EC%8B%9C%ED%82%A4%EA%B8%B0)
+    - [1. 문제: 스코프 구분 없이 전체 스크립트를 대상으로 breakpoint를 잡는 현상](#1-%EB%AC%B8%EC%A0%9C-%EC%8A%A4%EC%BD%94%ED%94%84-%EA%B5%AC%EB%B6%84-%EC%97%86%EC%9D%B4-%EC%A0%84%EC%B2%B4-%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EB%A5%BC-%EB%8C%80%EC%83%81%EC%9C%BC%EB%A1%9C-breakpoint%EB%A5%BC-%EC%9E%A1%EB%8A%94-%ED%98%84%EC%83%81)
+    - [2. 해결: restrictToFunction 옵션으로 현재 함수 내부로만 제한](#2-%ED%95%B4%EA%B2%B0-restricttofunction-%EC%98%B5%EC%85%98%EC%9C%BC%EB%A1%9C-%ED%98%84%EC%9E%AC-%ED%95%A8%EC%88%98-%EB%82%B4%EB%B6%80%EB%A1%9C%EB%A7%8C-%EC%A0%9C%ED%95%9C)
+  - [Chrome DevTools Protocol(CDP) API 및 스크립트 구현하기](#chrome-devtools-protocolcdp-api-%EB%B0%8F-%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
+    - [1. Chrome DevTools Protocol(CDP) 연결 원리](#1-chrome-devtools-protocolcdp-%EC%97%B0%EA%B2%B0-%EC%9B%90%EB%A6%AC)
+    - [2. 개발자 경험 향상의 필요성과 그 결과](#2-%EA%B0%9C%EB%B0%9C%EC%9E%90-%EA%B2%BD%ED%97%98-%ED%96%A5%EC%83%81%EC%9D%98-%ED%95%84%EC%9A%94%EC%84%B1%EA%B3%BC-%EA%B7%B8-%EA%B2%B0%EA%B3%BC)
+    - [3. API 및 스크립트 구현 과정](#3-api-%EB%B0%8F-%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8-%EA%B5%AC%ED%98%84-%EA%B3%BC%EC%A0%95)
+    - [4. Chrome의 multi-process 전략 응용](#4-chrome%EC%9D%98-multi-process-%EC%A0%84%EB%9E%B5-%EC%9D%91%EC%9A%A9)
 - [회고](#%ED%9A%8C%EA%B3%A0)
 
 <!-- tocstop -->
@@ -70,7 +70,7 @@ BackDo는 resume 버튼으로 지나쳤다거나, step을 누르면서 지나쳤
 >
 > ```js
 > for (initialization; condition; afterthought) {
->   statement
+>   statement;
 > }
 > ```
 
@@ -115,6 +115,8 @@ BackDo는 resume 버튼으로 지나쳤다거나, step을 누르면서 지나쳤
 
 **테스트**
 
+[![vitest](https://img.shields.io/badge/vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![testinglibrary](https://img.shields.io/badge/testinglibrary-E33332?style=for-the-badge&logo=testinglibrary&logoColor=white)](https://testing-library.com/)
 [![mocha](https://img.shields.io/badge/mocha-8D6748?style=for-the-badge&logo=mocha&logoColor=white)](https://mochajs.org/)
 [![chai](https://img.shields.io/badge/chai-A30701?style=for-the-badge&logo=chai&logoColor=white)](https://www.chaijs.com/)
 
@@ -171,7 +173,7 @@ protocol monitor를 사용하면서 step 버튼 클릭 시 어떤 요청과 응�
 
 VSCode에서 제어 버튼을 렌더링하는 위치로 이동해 냅다 새로운 코드를 작성하고 타입 에러를 발생시켰습니다. 타입 에러를 잡으면서 먼저 버튼 팩토리 함수를 사용하는 방법을 습득했습니다. 그 결과 자연스럽게 이벤트리스너 콜백에 접근하고, CDP 요청을 하는 함수가 특정 모델과 연결되어 있음을 인지하는 방식으로 진행했습니다.
 
-결과적으로 프로젝트에서  SourcesPanel.ts 파일에서 작업하고 UI.Toolbar.ToolbarButton, SDK.RuntimeModel, SDK.DebuggerModel 등을 주로 활용하는 것에 초점을 맞췄습니다.
+결과적으로 프로젝트에서 SourcesPanel.ts 파일에서 작업하고 UI.Toolbar.ToolbarButton, SDK.RuntimeModel, SDK.DebuggerModel 등을 주로 활용하는 것에 초점을 맞췄습니다.
 
 ### 3. 오픈 소스 기존 로직 활용
 
@@ -206,10 +208,11 @@ for 반복문의 파트별 명칭은 다음과 같습니다.
 - for 문 body: 중괄호({})로 감싸진 부분입니다.
 - for 문 head: 소괄호(())로 감싸진 부분입니다.
 - loop counter: initialization에서 선언한 변수 입니다. (예: i)
->
+  >
+
 ```js
 for (initialization; condition; afterthought) {
-  statement
+  statement;
 }
 ```
 
