@@ -1,5 +1,50 @@
 # BackDo
 
+## 새 재실행 아키텍처 실행 방법
+
+Node 버전은 `.nvmrc`의 **22.11.0**이다. 기존 소개 아래의 구현 설명은 초기 PoC 기록이며, 이 브랜치의 실제 사용법은 다음과 같다.
+
+```sh
+nvm use
+npm ci
+npm start
+```
+
+서버는 `http://127.0.0.1:3000`에서 실행된다. 형제 `devtools-frontend` 저장소를 빌드하면 그 결과를 `/gen/front_end`에서 제공한다.
+
+- 콘솔 디버깅: 다른 터미널에서 `npm run ws`를 실행하고 출력된 BackDo 주소를 연다. Console에 `debugger;`와 코드를 입력한다.
+- Node 디버깅: 사용자 터미널에서 `node --inspect-brk <cli.js> [인자...]`를 실행하고 `http://127.0.0.1:3000/gen/front_end/js_app.html?port=9229`를 연다. 파일 경로나 명령을 서버에 입력하지 않는다. 기존 `?ws=127.0.0.1:9229/<ID>` 방식도 유지한다.
+- 종료: 서버 터미널에서 Ctrl+C. 서버가 만든 더미·브라우저·재시작된 Node를 정리한다. 재시작 전의 사용자 원본 Node는 서버가 대신 종료하지 않는다.
+
+`BACKDO_SERVER_PORT`로 서버 포트, `BACKDO_FRONTEND_DIR`로 빌드 경로, `CHROME_BIN`으로 Chrome 실행 파일을 지정할 수 있다. 기본 포트가 아니면 화면 URL에 `backdoServer=http://127.0.0.1:<서버 포트>`를 추가한다. `npm run ws`는 이를 포함한 주소를 출력한다.
+
+### 실행 정보와 재시작
+
+1. 프런트엔드가 포트 또는 ws만 보내면 서버가 `/json/list`로 대상을 찾는다.
+2. Node 첫 정지에서 executable·argv0·인자 전체·Node 옵션 전체·환경변수 전체·cwd·umask·유효 uid/gid를 조회한다. 값은 서버 메모리에만 보관하고 프런트엔드 응답이나 서버 자체 로그에 출력하지 않는다.
+3. 뒤로가기 요청 시 연결된 Node의 PID를 확인하고 **프로세스부터 종료**한다. ws가 먼저 끊겨 정지 뒤 코드가 실행되는 일을 피한다.
+4. 같은 포트로 재시작하되 새 PID와 ws를 반환한다. 프런트엔드는 같은 탭에서 실제 연결과 주소를 교체한다.
+5. 첫 측정은 별도 더미 프로세스에서 한다. 더미에는 사용자 인자·환경변수를 전달하지 않는다. 측정 완료·실패·취소 시 정리한다.
+
+`process` 객체 전체나 열린 핸들을 복제하는 기능은 아니다. 디버거 옵션만 새 연결용 `--inspect-brk`로 정규화하며 다른 인자·환경은 보존한다. 재시작 후 출력은 서버 터미널로 전달되고 기존 터미널의 stdin·IPC·파일 핸들은 이어지지 않는다. 일반 파일 진입점의 CJS·ESM을 검증 범위로 삼는다. 첫 정지 이후에 연결하면 이미 바뀐 실행 환경을 읽을 수 있으므로 `--inspect-brk`로 시작한다.
+
+별도로 실행한 Chrome은 재시작하지 않는다. `npm run ws`로 서버가 만든 브라우저만 관리한다. 프로세스 전체 재시작이므로 쿠키·페이지 상태·외부 부작용을 복원하지 않는다.
+
+### 연동 경로와 검증
+
+- `POST /sessions`: `{port, kind, ws?}` 등록. Node는 `kind: "node"`, 브라우저는 `"page"`.
+- `GET /sessions/:id?ready=true`: 첫 정지의 실행 정보 조회 완료 대기.
+- `POST /sessions/:id/restart`: `{ws}`가 현재 주소와 일치할 때 재시작.
+- `POST /sessions/:id/calibrations/:owner`, `DELETE` 같은 경로: 별도 더미 생성·정리.
+- `DELETE /sessions/:id`: 실행 정보와 연결 해제. 사용자 프로그램 종료 요청과 구분한다.
+- 기존 `POST /ws/open`, `/ws/close` 유지. 임의 PID 종료는 거절한다.
+
+`npm test`는 기존 프런트엔드와 같은 Mocha 9.2.2·Chai 4.3.4로 실제 HTTP·Node 연결을 확인한다. 프런트엔드의 `scripts/backdo/tests`는 이 서버에 실제로 연결해 화면의 버튼과 하이라이트를 검사한다.
+
+서버는 루프백에만 열고 출처를 검사한다. 배포 화면에서 접근하는 경우 [Chrome 로컬 네트워크 접근 권한](https://developer.chrome.com/blog/local-network-access)이 필요할 수 있다. `backdo.site`에 변경 프런트엔드를 배포하는 작업은 별개다.
+
+---
+
 - 다음 이미지를 클릭하면 프로젝트 사이트로 이동합니다.
 
 [![backdo_banner](https://github.com/user-attachments/assets/e8da2d08-a16d-44af-b4b3-83ce91d551ad)](https://landing.BackDo.site/)
