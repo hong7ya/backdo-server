@@ -114,7 +114,7 @@ class CalibrationManager {
   }
 
   async #launchDummy(session) {
-    if (session.kind === 'page') {
+    if (session.kind === 'console') {
       const target = await launchBrowser(0, this.#options);
       return { ws: target.ws, close: () => target.browser.close() };
     }

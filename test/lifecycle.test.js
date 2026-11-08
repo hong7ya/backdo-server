@@ -204,6 +204,15 @@ describe('포트만 받는 실제 서버 연동', function() {
     assert.strictEqual((await api('/')).status, 200);
   });
 
+  it('Console과 Node 이외의 세션 등록은 대상 조회 전에 거절한다', async () => {
+    for (const kind of ['page', 'browser', 'worker']) {
+      const response = await api('/sessions', 'POST', { port: 1, kind });
+      assert.strictEqual(response.status, 400);
+      assert.include(response.body.error, '지원하지 않는 디버깅 대상');
+      assert.strictEqual(server.manager.usage.sessions, 0);
+    }
+  });
+
   it('임의 PID 종료와 다른 웹사이트의 프로세스 제어 요청을 거절한다', async () => {
     assert.strictEqual((await api('/ws/close', 'POST', { browserPID: process.pid })).status, 400);
     const response = await fetch(`${server.origin}/sessions`, {
