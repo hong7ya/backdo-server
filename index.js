@@ -1,16 +1,16 @@
-const express = require("express");
-const wsRoutes = require("./routes/ws");
+const { startServer } = require('./app');
 
-const app = express();
+async function main() {
+  const server = await startServer();
+  console.log(`BackDo 로컬 서버: ${server.origin}`);
+  let closing = false;
+  const close = async () => {
+    if (closing) return;
+    closing = true;
+    await server.close();
+  };
+  process.once('SIGINT', () => { void close(); });
+  process.once('SIGTERM', () => { void close(); });
+}
 
-app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.send("backdo server 작동 중");
-});
-
-app.use("/ws", wsRoutes);
-
-app.listen(3000, () => {
-  console.log("Serving on port 3000");
-});
+if (require.main === module) void main().catch(error => { console.error(error.message); process.exitCode = 1; });

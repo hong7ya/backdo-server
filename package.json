@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node ./index.js",
     "ws": "node ./clis/index.js ws",
-    "close": "node ./clis/index.js close"
+    "close": "node ./clis/index.js close",
+    "test": "mocha \"test/**/*.test.js\" --timeout 30000"
   },
   "author": "",
   "license": "ISC",
@@ -14,5 +15,12 @@
     "axios": "^1.8.1",
     "express": "^4.21.2",
     "puppeteer": "^24.3.0"
+  },
+  "engines": {
+    "node": ">=22.11.0"
+  },
+  "devDependencies": {
+    "mocha": "9.2.2",
+    "chai": "4.3.4"
   }
 }

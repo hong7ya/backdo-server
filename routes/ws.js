@@ -1,10 +1,12 @@
-const express = require("express");
-const wsControllers = require("../controllers/ws");
+const express = require('express');
+const { createWSControllers } = require('../controllers/ws');
 
-const router = express.Router();
+function createWSRouter(manager, route) {
+  const router = express.Router();
+  const controllers = createWSControllers(manager);
+  router.post('/open', route(controllers.open));
+  router.post('/close', route(controllers.close));
+  return router;
+}
 
-router.post("/open", wsControllers.open);
-
-router.post("/close", wsControllers.close);
-
-module.exports = router;
+module.exports = { createWSRouter };
