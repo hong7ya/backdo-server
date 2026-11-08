@@ -39,8 +39,9 @@ async function launchFixture(extension = 'cjs') {
   return { child, ws, port: Number(new URL(ws).port), marker, args, env };
 }
 
-async function attach(ws) {
+async function attach(ws, onScriptParsed = () => {}) {
   const client = new InspectorConnection(ws);
+  client.on('Debugger.scriptParsed', onScriptParsed);
   connections.add(client);
   const paused = once(client, 'Debugger.paused');
   await client.request('Runtime.enable');
@@ -98,7 +99,10 @@ describe('포트만 받는 실제 서버 연동', function() {
       assert.notStrictEqual(next.ws, session.ws);
       assert.strictEqual(next.port, fixture.port);
       assert.strictEqual(await readFile(fixture.marker, 'utf8'), '진입\n', '종료 전에 ws를 끊어 뒷부분을 실행하면 안 된다');
-      const restarted = await attach(next.ws);
+      const parsedScripts = [];
+      const restarted = await attach(next.ws, script => parsedScripts.push(script));
+      assert.isTrue(parsedScripts.some(script =>
+        script.url === 'backdo-internal:///restore-launch-context.js' && script.hasSourceURL));
       const after = await values(restarted);
       assert.deepEqual(after.argv, before.argv);
       assert.deepEqual(after.env, before.env, '환경변수 일부만 추리거나 내부 전달 키를 남기면 안 된다');

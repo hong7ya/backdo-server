@@ -14,7 +14,8 @@ const LAUNCH_INFORMATION = `({
   umask: process.umask(),
   uid: process.geteuid?.(),
   gid: process.getegid?.()
-})`;
+})
+//# sourceURL=backdo-internal:///read-launch-information.js`;
 
 /** 첫 정지에서 실행 정보를 읽고, 같은 실행 조건으로 Node를 교체한다. */
 class NodeProcess {
@@ -128,7 +129,7 @@ class NodeProcess {
 
   async #verifyProcessIdentity() {
     const response = await this.#connection.request('Runtime.evaluate', {
-      expression: 'process.pid',
+      expression: 'process.pid\n//# sourceURL=backdo-internal:///verify-process.js',
       returnByValue: true,
       silent: true,
       throwOnSideEffect: true,
