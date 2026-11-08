@@ -6,10 +6,9 @@ async function main() {
 
   if (command === 'ws') {
     const { data } = await axios.post(`${origin}/ws/open`);
-    const url = new URL('/gen/front_end/devtools_app.html', origin);
-    url.searchParams.set('ws', data.wsParam);
-    url.searchParams.set('backdoServer', origin);
-    console.log(`BackDo 화면: ${url.href}`);
+    const parameters = new URLSearchParams({ ws: data.wsParam, backdoServer: origin });
+    console.log('별도로 연 BackDo의 devtools_app.html 주소 뒤에 다음 연결 인자를 붙여 주세요.');
+    console.log(`?${parameters}`);
     console.log(`화면의 Console에 debugger;와 코드를 입력해 주세요.`);
     console.log(`연결 주소: ${data.wsParam}`);
     console.log('디버깅 종료 후 서버를 종료하면 이 서버가 만든 브라우저도 정리됩니다.');

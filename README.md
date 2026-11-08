@@ -10,13 +10,19 @@ npm ci
 npm start
 ```
 
-서버는 `http://127.0.0.1:3000`에서 실행된다. 형제 `devtools-frontend` 저장소를 빌드하면 그 결과를 `/gen/front_end`에서 제공한다.
+서버는 `http://127.0.0.1:3000`에서 프로세스 제어 API만 제공한다. 프런트엔드는 `devtools-frontend` 저장소에서 따로 빌드·배포한다. 서버는 프런트엔드 파일 경로나 화면 포트를 관리하지 않는다.
 
-- 콘솔 디버깅: 다른 터미널에서 `npm run ws`를 실행하고 출력된 BackDo 주소를 연다. Console에 `debugger;`와 코드를 입력한다.
-- Node 디버깅: 사용자 터미널에서 `node --inspect-brk <cli.js> [인자...]`를 실행하고 `http://127.0.0.1:3000/gen/front_end/js_app.html?port=9229`를 연다. 파일 경로나 명령을 서버에 입력하지 않는다. 기존 `?ws=127.0.0.1:9229/<ID>` 방식도 유지한다.
+로컬에서는 프런트엔드를 빌드한 뒤, 별도 터미널의 `devtools-frontend` 저장소 루트에서 기존처럼 정적 서버를 연다. 8000은 예시이며 사용자가 다른 포트를 선택해도 된다.
+
+```sh
+python3 -m http.server 8000 --bind 127.0.0.1
+```
+
+- 콘솔 디버깅: server의 다른 터미널에서 `npm run ws`를 실행한다. 출력된 `?ws=...&backdoServer=...`를 `http://127.0.0.1:8000/out/Default/gen/front_end/devtools_app.html` 뒤에 붙여 연다. Console에 `debugger;`와 코드를 입력한다.
+- Node 디버깅: 사용자 터미널에서 `node --inspect-brk <cli.js> [인자...]`를 실행하고 `http://127.0.0.1:8000/out/Default/gen/front_end/js_app.html?port=9229`를 연다. 파일 경로나 명령을 서버에 입력하지 않는다. 기존 `?ws=127.0.0.1:9229/<ID>` 방식도 유지한다.
 - 종료: 서버 터미널에서 Ctrl+C. 서버가 만든 더미·브라우저·재시작된 Node를 정리한다. 재시작 전의 사용자 원본 Node는 서버가 대신 종료하지 않는다.
 
-`BACKDO_SERVER_PORT`로 서버 포트, `BACKDO_FRONTEND_DIR`로 빌드 경로, `CHROME_BIN`으로 Chrome 실행 파일을 지정할 수 있다. 기본 포트가 아니면 화면 URL에 `backdoServer=http://127.0.0.1:<서버 포트>`를 추가한다. `npm run ws`는 이를 포함한 주소를 출력한다.
+`BACKDO_SERVER_PORT`로 API 서버 포트, `CHROME_BIN`으로 대상 Chrome 실행 파일을 지정할 수 있다. API가 기본 3000 포트가 아니면 화면 URL에 `backdoServer=http://127.0.0.1:<서버 포트>`를 추가한다. `npm run ws`는 이를 포함한 연결 인자를 출력한다. 로컬 화면의 포트는 API 서버 포트와 별개다. 별도 배포 주소는 `BACKDO_ALLOWED_ORIGINS`에 출처를 쉼표로 구분해 추가할 수 있다.
 
 ### 실행 정보와 재시작
 
