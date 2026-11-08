@@ -189,6 +189,21 @@ describe('포트만 받는 실제 서버 연동', function() {
     }
   });
 
+  it('종료 요청을 무시하는 자식도 강제 종료하고 서버를 계속 사용할 수 있다', async () => {
+    const child = spawn(process.execPath, ['-e', `
+      process.on('SIGTERM', () => {});
+      console.log('준비');
+      setInterval(() => {}, 1000);
+    `], { stdio: ['ignore', 'pipe', 'pipe'] });
+    children.add(child);
+    await once(child.stdout, 'data');
+
+    await terminateProcess(child.pid, child);
+
+    assert.strictEqual(child.signalCode, 'SIGKILL');
+    assert.strictEqual((await api('/')).status, 200);
+  });
+
   it('임의 PID 종료와 다른 웹사이트의 프로세스 제어 요청을 거절한다', async () => {
     assert.strictEqual((await api('/ws/close', 'POST', { browserPID: process.pid })).status, 400);
     const response = await fetch(`${server.origin}/sessions`, {
