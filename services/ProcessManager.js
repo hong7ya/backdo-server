@@ -135,11 +135,11 @@ class ProcessManager {
     if (this.#closed || this.#sessions.size >= MAX_SESSIONS) {
       throw new Error('디버깅 세션을 더 등록할 수 없습니다. 사용하지 않는 세션을 닫아 주세요.');
     }
-    if (!['node', 'page'].includes(kind)) {
+    if (!['node', 'console'].includes(kind)) {
       throw new Error('지원하지 않는 디버깅 대상입니다.');
     }
 
-    const address = await discoverInspector(port, kind, ws);
+    const address = await discoverInspector(port, kind === 'console' ? 'page' : 'node', ws);
     if (this.#closed) {
       throw new Error('서버가 종료 중입니다.');
     }
@@ -150,7 +150,7 @@ class ProcessManager {
 
     const target = kind === 'node' ? await new NodeProcess(address).connect() : this.#browsers.get(address);
     if (!target) {
-      throw new Error('브라우저 대상은 이 서버의 npm run ws로 생성해 주세요.');
+      throw new Error('Console 실행 대상은 이 서버의 npm run ws로 생성해 주세요.');
     }
     const session = { id: randomUUID(), kind, target, busy: false, failed: false, restarts: 0 };
     this.#sessions.set(session.id, session);
