@@ -22,9 +22,7 @@ class NodeProcess {
   #connection;
   #information;
   #child;
-  #ready;
-  #resolveReady;
-  #rejectReady;
+  #launchInformation = Promise.withResolvers();
   #capturing = false;
 
   constructor(ws, information, child) {
@@ -32,12 +30,8 @@ class NodeProcess {
     this.port = Number(new URL(ws).port);
     this.#information = information;
     this.#child = child;
-    this.#ready = new Promise((resolve, reject) => {
-      this.#resolveReady = resolve;
-      this.#rejectReady = reject;
-    });
     // 첫 정지 전 연결 실패도 처리하되, 준비 요청에는 원래 실패를 전달한다.
-    void this.#ready.catch(() => {});
+    void this.#launchInformation.promise.catch(() => {});
   }
 
   get pid() {
@@ -53,13 +47,13 @@ class NodeProcess {
   }
 
   get ready() {
-    return this.#ready;
+    return this.#launchInformation.promise;
   }
 
   async connect() {
     this.#connection = new InspectorConnection(this.ws);
     this.#connection.on('closed', () => {
-      this.#rejectReady(new Error('실행 정보 조회 전에 대상이 종료되었습니다.'));
+      this.#launchInformation.reject(new Error('실행 정보 조회 전에 대상이 종료되었습니다.'));
     });
     this.#connection.on('Debugger.paused', () => this.#captureAtFirstPause());
 
@@ -108,7 +102,7 @@ class NodeProcess {
       return;
     }
     this.#capturing = true;
-    void this.#captureLaunchInformation().then(this.#resolveReady, this.#rejectReady);
+    void this.#captureLaunchInformation().then(this.#launchInformation.resolve, this.#launchInformation.reject);
   }
 
   async #captureLaunchInformation() {

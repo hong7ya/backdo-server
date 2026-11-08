@@ -1,5 +1,4 @@
 const { spawn } = require('node:child_process');
-const { once } = require('node:events');
 const { setTimeout: delay } = require('node:timers/promises');
 
 const INSPECTOR_START_TIMEOUT_MS = 10_000;
@@ -81,10 +80,8 @@ async function terminateProcess(pid, child) {
   }
 
   signalProcess(pid, 'SIGKILL');
-  if (child && !hasChildExited(child)) {
-    await once(child, 'exit');
-  }
-  if (!await waitForExit(pid, undefined, KILL_TIMEOUT_MS)) {
+  // 강제 종료 뒤에도 같은 대기 상한을 적용한다. 자식이 있으면 해당 실행의 종료 상태를 우선한다.
+  if (!await waitForExit(pid, child, KILL_TIMEOUT_MS)) {
     throw new Error('기존 Node 프로세스의 종료를 확인하지 못했습니다.');
   }
 }
