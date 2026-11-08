@@ -163,6 +163,28 @@ describe('포트만 받는 실제 서버 연동', function() {
     assert.strictEqual(server.manager.usage.calibrationsCreated, server.manager.usage.calibrationsDisposed);
   });
 
+  it('다른 로컬 포트의 화면에 API 접근을 허용하고 프론트 파일은 제공하지 않는다', async () => {
+    for (const origin of ['http://localhost:8000', 'http://127.0.0.1:8001']) {
+      const preflight = await fetch(`${server.origin}/sessions`, {
+        method: 'OPTIONS',
+        headers: {
+          Origin: origin,
+          'Access-Control-Request-Method': 'POST',
+          'Access-Control-Request-Headers': 'content-type',
+        },
+      });
+      assert.strictEqual(preflight.status, 204);
+      assert.strictEqual(preflight.headers.get('Access-Control-Allow-Origin'), origin);
+      const response = await fetch(server.origin, { headers: { Origin: origin } });
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(response.headers.get('Access-Control-Allow-Origin'), origin);
+      assert.strictEqual((await response.json()).service, 'BackDo');
+    }
+    for (const entry of ['devtools_app.html', 'js_app.html']) {
+      assert.strictEqual((await fetch(`${server.origin}/gen/front_end/${entry}`)).status, 404);
+    }
+  });
+
   it('임의 PID 종료와 다른 웹사이트의 프로세스 제어 요청을 거절한다', async () => {
     assert.strictEqual((await api('/ws/close', 'POST', { browserPID: process.pid })).status, 400);
     const response = await fetch(`${server.origin}/sessions`, {

@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('node:path');
 const { allowLocalRequests, sendError } = require('./middleware/http');
 const { createSessionRouter } = require('./routes/sessions');
 const { createWSRouter } = require('./routes/ws');
@@ -8,7 +7,7 @@ const { ProcessManager } = require('./services/ProcessManager');
 /** 진입점과 통합 테스트가 같은 앱을 실행한다. 요청별 처리는 라우터에서 확인한다. */
 async function startServer(options = {}) {
   const manager = new ProcessManager(options);
-  const app = createApp(manager, options);
+  const app = createApp(manager);
   const port = options.port ?? Number(process.env.BACKDO_SERVER_PORT || 3000);
   const server = await listen(app, port);
 
@@ -23,17 +22,14 @@ async function startServer(options = {}) {
   };
 }
 
-function createApp(manager, options) {
+function createApp(manager) {
   const app = express();
-  const frontendDirectory = options.frontendDir || process.env.BACKDO_FRONTEND_DIR ||
-    path.resolve(__dirname, '../devtools-frontend/out/Default/gen/front_end');
 
   app.use(allowLocalRequests());
   app.use(express.json({ limit: '16kb' }));
   app.get('/', (req, res) => res.json({ service: 'BackDo', version: 1 }));
   app.use('/ws', createWSRouter(manager));
   app.use('/sessions', createSessionRouter(manager));
-  app.use('/gen/front_end', express.static(frontendDirectory));
   app.use(sendError);
   return app;
 }
