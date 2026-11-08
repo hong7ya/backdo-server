@@ -6,7 +6,7 @@ const { tmpdir } = require('node:os');
 const path = require('node:path');
 const { startServer } = require('../app');
 const { InspectorConnection } = require('../services/InspectorConnection');
-const { terminateProcess } = require('../services/NodeProcess');
+const { terminateProcess } = require('../services/NodeRuntime');
 
 const children = new Set();
 const connections = new Set();
