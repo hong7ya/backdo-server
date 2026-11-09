@@ -20,8 +20,6 @@ nvm use
 npm ci
 ```
 
-`npm ci`는 `package-lock.json`에 기록된 의존성을 설치하는 npm 기본 명령입니다. `package.json`에 `ci` 스크립트를 추가할 필요가 없습니다. 두 파일의 의존성이 맞지 않으면 설치를 중단합니다. [npm 공식 설명](https://docs.npmjs.com/cli/v10/commands/npm-ci/)
-
 서버 저장소에서 디버깅할 대상에 맞춰 다음 명령 중 하나를 실행합니다.
 
 ### Console (Chrome)
@@ -67,24 +65,24 @@ Node도 `npm run start:node -- --port 9333`으로 지정할 수 있습니다. No
 
 ## API와 설정
 
-| 요청 | 역할 |
-| --- | --- |
-| `POST /ws/open` | Console 전용 Chrome 생성. `port` 생략 시 `9222` |
-| `POST /sessions` | `{kind: "console" 또는 "node", port, ws?}`로 대상 등록 |
-| `GET /sessions/:id?ready=true` | 재시작에 필요한 준비 완료 대기 |
-| `POST /sessions/:id/restart` | 현재 `ws`를 확인한 뒤 대상 재시작 |
-| `DELETE /sessions/:id` | 실행 정보와 세션 해제. 사용자 원본 Node 종료 요청과는 별개 |
-| `POST /sessions/:id/calibrations/:owner` | CDP 요청·응답 시간을 확인할 별도 프로그램 생성 |
-| `DELETE /sessions/:id/calibrations/:owner` | CDP 응답 시간 확인에 사용한 프로그램 정리 |
-| `POST /ws/close` | 서버가 소유한 Chrome PID 종료 |
+| 요청                                       | 역할                                                       |
+| ------------------------------------------ | ---------------------------------------------------------- |
+| `POST /ws/open`                            | Console 전용 Chrome 생성. `port` 생략 시 `9222`            |
+| `POST /sessions`                           | `{kind: "console" 또는 "node", port, ws?}`로 대상 등록     |
+| `GET /sessions/:id?ready=true`             | 재시작에 필요한 준비 완료 대기                             |
+| `POST /sessions/:id/restart`               | 현재 `ws`를 확인한 뒤 대상 재시작                          |
+| `DELETE /sessions/:id`                     | 실행 정보와 세션 해제. 사용자 원본 Node 종료 요청과는 별개 |
+| `POST /sessions/:id/calibrations/:owner`   | CDP 요청·응답 시간을 확인할 별도 프로그램 생성             |
+| `DELETE /sessions/:id/calibrations/:owner` | CDP 응답 시간 확인에 사용한 프로그램 정리                  |
+| `POST /ws/close`                           | 서버가 소유한 Chrome PID 종료                              |
 
 Console도 `POST /sessions`에 포트만 전달해 등록할 수 있습니다. 서버는 해당 포트의 디버깅 대상이 자신이 만든 Chrome인지 확인합니다.
 
-| 환경변수 | 용도 |
-| --- | --- |
-| `BACKDO_SERVER_PORT` | API 포트. 기본 `3000` |
+| 환경변수                 | 용도                                   |
+| ------------------------ | -------------------------------------- |
+| `BACKDO_SERVER_PORT`     | API 포트. 기본 `3000`                  |
 | `BACKDO_ALLOWED_ORIGINS` | 추가 허용할 웹 화면 출처를 쉼표로 구분 |
-| `CHROME_BIN` | 사용할 Chrome 실행 파일 경로 |
+| `CHROME_BIN`             | 사용할 Chrome 실행 파일 경로           |
 
 `config.json`에서 터미널에 안내할 배포 랜딩 주소와 허용 운영 출처를 관리합니다. 개발·운영용 서버 명령은 나누지 않습니다.
 
@@ -99,3 +97,21 @@ npm test
 ```
 
 프로세스 연동 테스트는 Node 실행 조건 유지, 같은 포트 재시작, CDP 응답 시간 확인에 사용한 프로그램 정리, 허용 출처와 잘못된 대상 요청을 다룹니다.
+
+## 아이디어 선정 배경
+
+### 디버거에서 앞으로 가기가 있는 데, 왜 거꾸로 가기는 없는 지에 대한 의문
+
+기존 디버거는 여러 가지 버전으로 앞으로 가는 기능을 제공하고 있습니다. step, step into, step out, step over… 그런데 왜 거꾸로 가는 기능은 없는지 이따금 의문이 생깁니다. 바쁘게 코드를 디버깅하다가 순간 들러야 하는 줄을 지나치게 될 때는 아쉽기도 합니다. 이러한 순간들을 모아 BackDo 프로젝트로 승화했습니다. 디버거의 도구모음 중 하나로 이질감 없는 위치에 BackDo 버튼이 있습니다. 직관적으로 버튼 한 번만 누르면 작동합니다.
+
+### 자유롭게 거꾸로 가고, 이후에는 새로운 경로로 탐색 희망
+
+비디오 녹화처럼 단순히 기억을 되짚고 정해진 시나리오만 보는 것이 아니라, 실제로 소스 코드와 상호작용하고 싶었습니다. 이전에는 들어가지 않았던 함수 내부로 들어가 보거나 건너뛰는 등, 돌아온 위치에서 새로운 경로를 탐색하는 것이 목표였습니다.
+
+## 회고
+
+개발자 도구를 처음 써보게 되었을 때 왜 거꾸로 가기 기능이 없을까 라고 생각했던 때가 선명합니다. 이때는 몰랐습니다. 3달 뒤 제가 프로젝트 주제로 삼을 지 말입니다.
+
+주제의 특성상 기존에 존재하는 코드를 해석해서 원하는 기능을 삽입하는 첫 경험을 하게 되었습니다. 기술 스택도 생소하고 적응하는 데 쉽지 않았으나 실마리를 하나하나 찾아 적용해 나가는 과정은 매우 흥미진진했습니다.
+
+언젠가 오픈 소스에 기여하고 싶다는 소망을 갖게 되기도 했습니다. 개발자 도구 관련해서도 많이 배웠고 도전해서 얻는 기쁨을 만끽할 수 있는 프로젝트였습니다.

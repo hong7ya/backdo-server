@@ -15,27 +15,47 @@ class InspectorConnection extends EventEmitter {
         reject(new Error('Node 디버거 연결 대기 시간이 지났습니다.'));
         this.#socket.close();
       }, 10_000);
-      this.#socket.addEventListener('open', () => { clearTimeout(timeout); resolve(); }, { once: true });
+      this.#socket.addEventListener(
+        'open',
+        () => {
+          clearTimeout(timeout);
+          resolve();
+        },
+        { once: true }
+      );
       this.#socket.addEventListener('close', () => clearTimeout(timeout), { once: true });
       this.#socket.addEventListener('error', () => clearTimeout(timeout), { once: true });
-      this.#socket.addEventListener('error', () => reject(new Error('Node 디버거에 연결하지 못했습니다.')), { once: true });
-      this.#socket.addEventListener('close', () => reject(new Error('Node 디버거 연결이 종료되었습니다.')), { once: true });
+      this.#socket.addEventListener('error', () => reject(new Error('Node 디버거에 연결하지 못했습니다.')), {
+        once: true,
+      });
+      this.#socket.addEventListener('close', () => reject(new Error('Node 디버거 연결이 종료되었습니다.')), {
+        once: true,
+      });
     });
     this.closed = new Promise(resolve => {
-      this.#socket.addEventListener('close', () => {
-        this.#closed = true;
-        for (const pending of this.#pending.values()) {
-          clearTimeout(pending.timeout);
-          pending.reject(new Error('Node 디버거 연결이 종료되었습니다.'));
-        }
-        this.#pending.clear();
-        this.emit('closed');
-        resolve();
-      }, { once: true });
+      this.#socket.addEventListener(
+        'close',
+        () => {
+          this.#closed = true;
+          for (const pending of this.#pending.values()) {
+            clearTimeout(pending.timeout);
+            pending.reject(new Error('Node 디버거 연결이 종료되었습니다.'));
+          }
+          this.#pending.clear();
+          this.emit('closed');
+          resolve();
+        },
+        { once: true }
+      );
     });
     this.#socket.addEventListener('message', event => {
       let message;
-      try { message = JSON.parse(String(event.data)); } catch { this.#socket.close(); return; }
+      try {
+        message = JSON.parse(String(event.data));
+      } catch {
+        this.#socket.close();
+        return;
+      }
       if (message.method) this.emit(message.method, message.params);
       const pending = this.#pending.get(message.id);
       if (!pending) return;

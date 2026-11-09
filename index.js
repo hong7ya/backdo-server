@@ -14,8 +14,12 @@ async function main() {
   }
   const { values } = parseArgs({ args, options: { port: { type: 'string' } } });
   const port = Number(values.port ?? (mode === 'console' ? 9222 : 9229));
-  if ((values.port !== undefined && !/^\d+$/.test(values.port)) ||
-      !Number.isInteger(port) || port < 1 || port > 65535) {
+  if (
+    (values.port !== undefined && !/^\d+$/.test(values.port)) ||
+    !Number.isInteger(port) ||
+    port < 1 ||
+    port > 65535
+  ) {
     throw new Error('--port에는 1부터 65535까지의 정수를 입력해 주세요.');
   }
 
@@ -27,8 +31,12 @@ async function main() {
     closing = true;
     await server.close();
   };
-  process.once('SIGINT', () => { void close(); });
-  process.once('SIGTERM', () => { void close(); });
+  process.once('SIGINT', () => {
+    void close();
+  });
+  process.once('SIGTERM', () => {
+    void close();
+  });
 
   try {
     if (mode === 'console') {
@@ -55,4 +63,8 @@ async function main() {
   }
 }
 
-if (require.main === module) void main().catch(error => { console.error(error.message); process.exitCode = 1; });
+if (require.main === module)
+  void main().catch(error => {
+    console.error(error.message);
+    process.exitCode = 1;
+  });
