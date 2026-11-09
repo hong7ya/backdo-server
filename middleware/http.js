@@ -1,9 +1,10 @@
+const { allowedOrigins: productionOrigins } = require('../config.json');
+
 const LOCAL_HOSTNAMES = new Set(['127.0.0.1', 'localhost', '[::1]']);
 
 function allowLocalRequests() {
   const allowedOrigins = new Set([
-    'https://backdo.site',
-    'https://landing.backdo.site',
+    ...productionOrigins,
     ...(process.env.BACKDO_ALLOWED_ORIGINS || '').split(',').filter(Boolean),
   ]);
 

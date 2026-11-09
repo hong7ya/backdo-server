@@ -150,7 +150,7 @@ class ProcessManager {
 
     const target = kind === 'node' ? await new NodeProcess(address).connect() : this.#browsers.get(address);
     if (!target) {
-      throw new Error('Console 실행 대상은 이 서버의 npm run ws로 생성해 주세요.');
+      throw new Error('Console 실행 대상은 이 서버의 npm run start:console로 생성한 포트에 연결해 주세요.');
     }
     const session = { id: randomUUID(), kind, target, busy: false, failed: false, restarts: 0 };
     this.#sessions.set(session.id, session);
