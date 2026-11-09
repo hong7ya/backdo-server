@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./index.js",
-    "ws": "node ./clis/index.js ws",
+    "start:console": "node ./index.js console",
+    "start:node": "node ./index.js node",
     "close": "node ./clis/index.js close",
     "test": "mocha \"test/**/*.test.js\" --timeout 30000"
   },
