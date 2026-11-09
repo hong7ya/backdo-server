@@ -15,7 +15,8 @@ let server;
 
 async function api(route, method = 'GET', body) {
   const response = await fetch(`${server.origin}${route}`, {
-    method, headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    method,
+    headers: body ? { 'Content-Type': 'application/json' } : undefined,
     body: body ? JSON.stringify(body) : undefined,
   });
   return { status: response.status, body: response.status === 204 ? null : await response.json() };
@@ -24,10 +25,18 @@ async function api(route, method = 'GET', body) {
 async function launchFixture(extension = 'cjs') {
   const marker = path.join(directory, '실행 기록.txt');
   const entry = path.join(directory, `공백 있는 진입점.${extension}`);
-  await writeFile(entry, `process.getBuiltinModule('fs').appendFileSync(process.argv[2], '진입\\n');\ndebugger;\nprocess.getBuiltinModule('fs').appendFileSync(process.argv[2], '종료 뒤 실행\\n');\nsetInterval(() => {}, 1000);`);
+  await writeFile(
+    entry,
+    `process.getBuiltinModule('fs').appendFileSync(process.argv[2], '진입\\n');\ndebugger;\nprocess.getBuiltinModule('fs').appendFileSync(process.argv[2], '종료 뒤 실행\\n');\nsetInterval(() => {}, 1000);`
+  );
   const args = ['--inspect-brk=127.0.0.1:0', '--stack-trace-limit=42', entry, marker, '공백 있는 값', '', '--name'];
   const env = { FIRST: '첫 값', SECOND: '다른 값', BACKDO_RESTORE_CONTEXT: '원래 사용자 값' };
-  const child = spawn(process.execPath, args, { cwd: directory, env, argv0: 'backdo-test-node', stdio: ['ignore', 'pipe', 'pipe'] });
+  const child = spawn(process.execPath, args, {
+    cwd: directory,
+    env,
+    argv0: 'backdo-test-node',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
   children.add(child);
   const ws = await new Promise((resolve, reject) => {
     child.once('error', reject);
@@ -53,14 +62,16 @@ async function attach(ws, onScriptParsed = () => {}) {
 
 async function values(client) {
   const response = await client.request('Runtime.evaluate', {
-    expression: '({argv:[...process.argv], execArgv:[...process.execArgv], cwd:process.cwd(), env:{...process.env}, argv0:process.argv0, execPath:process.execPath, umask:process.umask(), uid:process.geteuid?.(), gid:process.getegid?.()})',
-    returnByValue: true, silent: true,
+    expression:
+      '({argv:[...process.argv], execArgv:[...process.execArgv], cwd:process.cwd(), env:{...process.env}, argv0:process.argv0, execPath:process.execPath, umask:process.umask(), uid:process.geteuid?.(), gid:process.getegid?.()})',
+    returnByValue: true,
+    silent: true,
   });
   assert.isUndefined(response.exceptionDetails);
   return response.result.value;
 }
 
-describe('포트만 받는 실제 서버 연동', function() {
+describe('포트만 받는 실제 서버 연동', function () {
   this.timeout(30_000);
   beforeEach(async () => {
     directory = await mkdtemp(path.join(tmpdir(), 'backdo-server-'));
@@ -98,11 +109,18 @@ describe('포트만 받는 실제 서버 연동', function() {
       assert.notStrictEqual(next.pid, fixture.child.pid);
       assert.notStrictEqual(next.ws, session.ws);
       assert.strictEqual(next.port, fixture.port);
-      assert.strictEqual(await readFile(fixture.marker, 'utf8'), '진입\n', '종료 전에 ws를 끊어 뒷부분을 실행하면 안 된다');
+      assert.strictEqual(
+        await readFile(fixture.marker, 'utf8'),
+        '진입\n',
+        '종료 전에 ws를 끊어 뒷부분을 실행하면 안 된다'
+      );
       const parsedScripts = [];
       const restarted = await attach(next.ws, script => parsedScripts.push(script));
-      assert.isTrue(parsedScripts.some(script =>
-        script.url === 'backdo-internal:///restore-launch-context.js' && script.hasSourceURL));
+      assert.isTrue(
+        parsedScripts.some(
+          script => script.url === 'backdo-internal:///restore-launch-context.js' && script.hasSourceURL
+        )
+      );
       const after = await values(restarted);
       assert.deepEqual(after.argv, before.argv);
       assert.deepEqual(after.env, before.env, '환경변수 일부만 추리거나 내부 전달 키를 남기면 안 된다');
@@ -128,11 +146,18 @@ describe('포트만 받는 실제 서버 연동', function() {
     await dummy.request('Runtime.enable');
     await dummy.request('Debugger.enable');
     const script = await dummy.request('Runtime.compileScript', {
-      expression: 'const value = 1;', sourceURL: 'backdo-calibration:///test.js', persistScript: true,
+      expression: 'const value = 1;',
+      sourceURL: 'backdo-calibration:///test.js',
+      persistScript: true,
     });
-    assert.isAbove((await dummy.request('Debugger.getPossibleBreakpoints', {
-      start: { scriptId: script.scriptId, lineNumber: 0 },
-    })).locations.length, 0);
+    assert.isAbove(
+      (
+        await dummy.request('Debugger.getPossibleBreakpoints', {
+          start: { scriptId: script.scriptId, lineNumber: 0 },
+        })
+      ).locations.length,
+      0
+    );
     await api(endpoint, 'DELETE');
     assert.strictEqual(server.manager.usage.calibrations, 0);
     assert.strictEqual(server.manager.usage.calibrationsCreated, 1);
@@ -190,11 +215,18 @@ describe('포트만 받는 실제 서버 연동', function() {
   });
 
   it('종료 요청을 무시하는 자식도 강제 종료하고 서버를 계속 사용할 수 있다', async () => {
-    const child = spawn(process.execPath, ['-e', `
+    const child = spawn(
+      process.execPath,
+      [
+        '-e',
+        `
       process.on('SIGTERM', () => {});
       console.log('준비');
       setInterval(() => {}, 1000);
-    `], { stdio: ['ignore', 'pipe', 'pipe'] });
+    `,
+      ],
+      { stdio: ['ignore', 'pipe', 'pipe'] }
+    );
     children.add(child);
     await once(child.stdout, 'data');
 
@@ -216,7 +248,8 @@ describe('포트만 받는 실제 서버 연동', function() {
   it('임의 PID 종료와 다른 웹사이트의 프로세스 제어 요청을 거절한다', async () => {
     assert.strictEqual((await api('/ws/close', 'POST', { browserPID: process.pid })).status, 400);
     const response = await fetch(`${server.origin}/sessions`, {
-      method: 'POST', headers: { Origin: 'https://example.com', 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { Origin: 'https://example.com', 'Content-Type': 'application/json' },
       body: JSON.stringify({ port: 9229, kind: 'node' }),
     });
     assert.strictEqual(response.status, 403);
