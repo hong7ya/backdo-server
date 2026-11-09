@@ -1,35 +1,44 @@
-const { allowedOrigins: productionOrigins } = require('../config.json');
+const { allowedOrigins: productionOrigins } = require("../config.json");
 
-const LOCAL_HOSTNAMES = new Set(['127.0.0.1', 'localhost', '[::1]']);
+const LOCAL_HOSTNAMES = new Set(["127.0.0.1", "localhost", "[::1]"]);
 
 function allowLocalRequests() {
   const allowedOrigins = new Set([
     ...productionOrigins,
-    ...(process.env.BACKDO_ALLOWED_ORIGINS || '').split(',').filter(Boolean),
+    ...(process.env.BACKDO_ALLOWED_ORIGINS || "").split(",").filter(Boolean),
   ]);
 
   return function checkOrigin(req, res, next) {
     if (!LOCAL_HOSTNAMES.has(req.hostname)) {
-      res.status(403).json({ error: '로컬 서버 주소로 연결해 주세요.' });
+      res.status(403).json({ error: "로컬 서버 주소로 연결해 주세요." });
+
       return;
     }
 
     const origin = req.headers.origin;
+
     if (origin && !isLocalOrigin(origin) && !allowedOrigins.has(origin)) {
-      res.status(403).json({ error: '허용되지 않은 화면의 요청입니다.' });
+      res.status(403).json({ error: "허용되지 않은 화면의 요청입니다." });
+
       return;
     }
 
     if (origin) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Vary', 'Origin');
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
+      res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET, POST, DELETE, OPTIONS"
+      );
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     }
-    if (req.method === 'OPTIONS') {
+
+    if (req.method === "OPTIONS") {
       res.sendStatus(204);
+
       return;
     }
+
     next();
   };
 }
@@ -37,7 +46,11 @@ function allowLocalRequests() {
 function isLocalOrigin(origin) {
   try {
     const url = new URL(origin);
-    return ['http:', 'https:'].includes(url.protocol) && LOCAL_HOSTNAMES.has(url.hostname);
+
+    return (
+      ["http:", "https:"].includes(url.protocol) &&
+      LOCAL_HOSTNAMES.has(url.hostname)
+    );
   } catch {
     return false;
   }
@@ -50,7 +63,9 @@ function asyncRoute(handler) {
 
 function sendError(error, req, res, next) {
   if (!res.headersSent) {
-    res.status(400).json({ error: error.message || '요청을 처리하지 못했습니다.' });
+    res
+      .status(400)
+      .json({ error: error.message || "요청을 처리하지 못했습니다." });
   }
 }
 
