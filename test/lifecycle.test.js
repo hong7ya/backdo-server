@@ -1,366 +1,231 @@
 const { assert } = require("chai");
-const { spawn } = require("node:child_process");
 const { once } = require("node:events");
-const { mkdtemp, writeFile, readFile, rm } = require("node:fs/promises");
+const { existsSync } = require("node:fs");
+const { mkdtemp, realpath, readFile, rm } = require("node:fs/promises");
 const { tmpdir } = require("node:os");
 const path = require("node:path");
 const { startServer } = require("../app");
 const { InspectorConnection } = require("../services/InspectorConnection");
 const { terminateProcess } = require("../services/NodeRuntime");
+const {
+  requestJSON,
+  requestRestart,
+  launchNode,
+  pauseAtStart,
+  resumeToNextPause,
+  waitForExit,
+  readLaunchContext,
+  findBreakableLocations,
+  evaluateInCallFrame,
+} = require("./helpers");
 
-const children = new Set();
-const connections = new Set();
-let directory;
-let server;
+describe("실제 Node 대상의 재시작과 측정", () => {
+  let server;
+  let directory;
+  let original;
+  let connections;
 
-async function api(route, method = "GET", body) {
-  const response = await fetch(`${server.origin}${route}`, {
-    method,
-    headers: body ? { "Content-Type": "application/json" } : undefined,
-    body: body ? JSON.stringify(body) : undefined,
-  });
-
-  return {
-    status: response.status,
-    body: response.status === 204 ? null : await response.json(),
-  };
-}
-
-async function launchFixture(extension = "cjs") {
-  const marker = path.join(directory, "실행 기록.txt");
-  const entry = path.join(directory, `공백 있는 진입점.${extension}`);
-  await writeFile(
-    entry,
-    `process.getBuiltinModule('fs').appendFileSync(process.argv[2], '진입\\n');\ndebugger;\nprocess.getBuiltinModule('fs').appendFileSync(process.argv[2], '종료 뒤 실행\\n');\nsetInterval(() => {}, 1000);`
-  );
-  const args = [
-    "--inspect-brk=127.0.0.1:0",
-    "--stack-trace-limit=42",
-    entry,
-    marker,
-    "공백 있는 값",
-    "",
-    "--name",
-  ];
-  const env = {
-    FIRST: "첫 값",
-    SECOND: "다른 값",
-    BACKDO_RESTORE_CONTEXT: "원래 사용자 값",
-  };
-  const child = spawn(process.execPath, args, {
-    cwd: directory,
-    env,
-    argv0: "backdo-test-node",
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  children.add(child);
-  const ws = await new Promise((resolve, reject) => {
-    child.once("error", reject);
-    child.stderr.on("data", (chunk) => {
-      const match = String(chunk).match(
-        /Debugger listening on (ws:\/\/[^\s]+)/
-      );
-
-      if (match) {
-        resolve(match[1]);
-      }
-    });
-  });
-
-  return { child, ws, port: Number(new URL(ws).port), marker, args, env };
-}
-
-async function attach(ws, onScriptParsed = () => {}) {
-  const client = new InspectorConnection(ws);
-  client.on("Debugger.scriptParsed", onScriptParsed);
-  connections.add(client);
-  const paused = once(client, "Debugger.paused");
-  await client.request("Runtime.enable");
-  await client.request("Debugger.enable");
-  await client.request("Runtime.runIfWaitingForDebugger");
-  await paused;
-
-  return client;
-}
-
-async function values(client) {
-  const response = await client.request("Runtime.evaluate", {
-    expression:
-      "({argv:[...process.argv], execArgv:[...process.execArgv], cwd:process.cwd(), env:{...process.env}, argv0:process.argv0, execPath:process.execPath, umask:process.umask(), uid:process.geteuid?.(), gid:process.getegid?.()})",
-    returnByValue: true,
-    silent: true,
-  });
-  assert.isUndefined(response.exceptionDetails);
-
-  return response.result.value;
-}
-
-describe("포트만 받는 실제 서버 연동", function () {
-  this.timeout(30_000);
   beforeEach(async () => {
+    server = undefined;
+    directory = undefined;
+    original = undefined;
+    connections = [];
     directory = await mkdtemp(path.join(tmpdir(), "backdo-server-"));
+    directory = await realpath(directory);
     server = await startServer({ port: 0 });
-  });
-  afterEach(async () => {
-    // 테스트가 만든 원래 프로세스도 연결 해제 전에 종료한다.
-    for (const child of children) {
-      await terminateProcess(child.pid, child);
-    }
-
-    await server?.close();
-
-    for (const connection of connections) {
-      await connection.close();
-    }
-
-    children.clear();
-    connections.clear();
-    await rm(directory, { recursive: true, force: true });
   });
 
   for (const extension of ["cjs", "mjs"]) {
-    it(`${extension} 실행 정보를 ws로 읽고 환경 전체를 유지하여 같은 포트에 재시작한다`, async () => {
-      const fixture = await launchFixture(extension);
-      const registered = await api("/sessions", "POST", {
-        port: fixture.port,
-        kind: "node",
+    it(`${extension}: 정지한 원본을 종료하고 같은 실행 조건과 포트로 새 Node에 연결한다`, async () => {
+      const executionLog = path.join(directory, "실행 기록.txt");
+      const args = [executionLog, "공백 있는 값", "", "--name"];
+      const env = {
+        FIRST: "첫 값",
+        SECOND: "다른 값",
+        BACKDO_RESTORE_CONTEXT: "원래 사용자 값",
+      };
+      original = await launchNode({
+        directory,
+        filename: `공백 있는 진입점.${extension}`,
+        source: `const fs = process.getBuiltinModule('fs');
+const executionLog = process.argv[2];
+fs.appendFileSync(executionLog, '진입\\n');
+debugger;
+fs.appendFileSync(executionLog, '종료 뒤 실행\\n');
+setInterval(() => {}, 1000);`,
+        args,
+        env,
+        execArgv: ["--stack-trace-limit=42"],
+        argv0: "backdo-test-node",
       });
-      assert.strictEqual(registered.status, 200);
-      const session = registered.body;
-      const client = await attach(session.ws);
-      assert.strictEqual(
-        (await api(`/sessions/${session.id}?ready=true`)).status,
-        200
-      );
-      const before = await values(client);
-      assert.include(before.env, fixture.env);
-      assert.notProperty(session, "env");
-      const sourcePause = once(client, "Debugger.paused");
-      await client.request("Debugger.resume");
-      await sourcePause;
-      assert.strictEqual(await readFile(fixture.marker, "utf8"), "진입\n");
+      const { session, client: originalDebugger } =
+        await registerNodePausedAtStart(original.port);
+      const originalContext = await readLaunchContext(originalDebugger);
+      assert.deepEqual(originalContext.argv, [
+        process.execPath,
+        original.entry,
+        ...args,
+      ]);
+      // 운영체제가 시작 시 추가하는 키도 아래 재시작 전후 전체 비교에는 포함한다.
+      assert.include(originalContext.env, env);
+      assert.strictEqual(originalContext.cwd, directory);
 
-      const response = await api(`/sessions/${session.id}/restart`, "POST", {
+      // --inspect-brk의 시작 정지에서 소스의 debugger 문까지 실행한다.
+      await resumeToNextPause(originalDebugger);
+
+      assert.strictEqual(await readFile(executionLog, "utf8"), "진입\n");
+
+      const restart = await requestRestart(server.origin, {
+        sessionId: session.id,
         ws: session.ws,
       });
-      assert.strictEqual(response.status, 200, JSON.stringify(response.body));
-      const next = response.body;
-      assert.notStrictEqual(next.pid, fixture.child.pid);
-      assert.notStrictEqual(next.ws, session.ws);
-      assert.strictEqual(next.port, fixture.port);
+
+      assert.strictEqual(restart.status, 200, JSON.stringify(restart.body));
+      const restartedTarget = restart.body;
+      // teardown이 종료한 결과를 제품의 재시작 성공으로 오인하지 않는다.
+      await waitForExit(original.child);
+      assert.throws(() => process.kill(original.child.pid, 0), /ESRCH/);
+      assert.notStrictEqual(restartedTarget.pid, original.child.pid);
+      assert.notStrictEqual(restartedTarget.ws, session.ws);
+      assert.strictEqual(restartedTarget.port, original.port);
       assert.strictEqual(
-        await readFile(fixture.marker, "utf8"),
+        await readFile(executionLog, "utf8"),
         "진입\n",
-        "종료 전에 ws를 끊어 뒷부분을 실행하면 안 된다"
+        "종료 과정에서 정지 이후 코드가 실행되면 안 된다"
       );
-      const parsedScripts = [];
-      const restarted = await attach(next.ws, (script) =>
-        parsedScripts.push(script)
-      );
-      assert.isTrue(
-        parsedScripts.some(
-          (script) =>
-            script.url === "backdo-internal:///restore-launch-context.js" &&
-            script.hasSourceURL
-        )
-      );
-      const after = await values(restarted);
-      assert.deepEqual(after.argv, before.argv);
-      assert.deepEqual(
-        after.env,
-        before.env,
-        "환경변수 일부만 추리거나 내부 전달 키를 남기면 안 된다"
-      );
-      assert.strictEqual(after.cwd, before.cwd);
-      assert.strictEqual(after.argv0, "backdo-test-node");
 
-      for (const key of ["execPath", "umask", "uid", "gid"]) {
-        assert.strictEqual(after[key], before[key], key);
-      }
+      const restartedDebugger = connect(restartedTarget.ws);
+      await pauseAtStart(restartedDebugger);
+      const restartedContext = await readLaunchContext(restartedDebugger);
 
-      assert.deepEqual(after.execArgv, [
-        `--inspect-brk=127.0.0.1:${fixture.port}`,
-        "--stack-trace-limit=42",
-      ]);
+      assert.deepEqual(restartedContext, {
+        ...originalContext,
+        pid: restartedTarget.pid,
+        execArgv: [
+          `--inspect-brk=127.0.0.1:${original.port}`,
+          "--stack-trace-limit=42",
+        ],
+      });
+      assert.strictEqual(restartedContext.argv0, "backdo-test-node");
+      assert.strictEqual(await readFile(executionLog, "utf8"), "진입\n");
+
+      const stale = await requestRestart(server.origin, {
+        sessionId: session.id,
+        ws: session.ws,
+      });
+
+      assert.strictEqual(stale.status, 400);
+      assert.include(stale.body.error, "대상 주소가 바뀌었거나");
+      const current = await requestJSON(
+        server.origin,
+        `/sessions/${session.id}`
+      );
+      assert.strictEqual(current.status, 200);
+      assert.include(current.body, {
+        ws: restartedTarget.ws,
+        pid: restartedTarget.pid,
+        restarts: 1,
+      });
       assert.strictEqual(
-        (
-          await api(`/sessions/${session.id}/restart`, "POST", {
-            ws: session.ws,
-          })
-        ).status,
-        400
+        (await readLaunchContext(restartedDebugger)).pid,
+        restartedTarget.pid
       );
     });
   }
 
-  it("더미를 실제 생성·측정·종료해도 사용자 정지와 실행 횟수는 유지한다", async () => {
-    const fixture = await launchFixture();
-    const { body: session } = await api("/sessions", "POST", {
-      port: fixture.port,
-      kind: "node",
+  it("별도 프로세스에서 CDP를 측정하고 종료해도 사용자 코드와 정지는 유지된다", async () => {
+    const executionLog = path.join(directory, "user-code.txt");
+    original = await launchNode({
+      directory,
+      source: `process.getBuiltinModule('fs').writeFileSync(process.argv[2], '실행됨');
+setInterval(() => {}, 1000);`,
+      args: [executionLog],
     });
-    const client = await attach(session.ws);
-    await api(`/sessions/${session.id}?ready=true`);
+    const {
+      session,
+      client: originalDebugger,
+      startupPause,
+    } = await registerNodePausedAtStart(original.port);
     const endpoint = `/sessions/${session.id}/calibrations/11111111-2222-3333-4444-555555555555`;
-    const created = await api(endpoint, "POST", {});
-    assert.strictEqual(created.status, 200);
-    assert.notStrictEqual(Number(new URL(created.body.ws).port), fixture.port);
-    const dummy = new InspectorConnection(created.body.ws);
-    connections.add(dummy);
-    await dummy.request("Runtime.enable");
-    await dummy.request("Debugger.enable");
-    const script = await dummy.request("Runtime.compileScript", {
-      expression: "const value = 1;",
-      sourceURL: "backdo-calibration:///test.js",
-      persistScript: true,
-    });
-    assert.isAbove(
-      (
-        await dummy.request("Debugger.getPossibleBreakpoints", {
-          start: { scriptId: script.scriptId, lineNumber: 0 },
-        })
-      ).locations.length,
-      0
-    );
-    await api(endpoint, "DELETE");
-    assert.strictEqual(server.manager.usage.calibrations, 0);
-    assert.strictEqual(server.manager.usage.calibrationsCreated, 1);
-    assert.strictEqual(server.manager.usage.calibrationsDisposed, 1);
-    assert.strictEqual((await values(client)).argv[1], fixture.args[2]);
-    assert.strictEqual(
-      await readFile(fixture.marker, "utf8").catch(() => ""),
-      ""
-    );
-    assert.strictEqual((await api(endpoint, "DELETE")).status, 204);
-  });
 
-  it("첫 정지 전 측정·재시작 요청은 사용자 코드를 실행하지 않고 거절한다", async () => {
-    const fixture = await launchFixture();
-    const { body: session } = await api("/sessions", "POST", {
-      port: fixture.port,
-      kind: "node",
-    });
-    const result = await api(
-      `/sessions/${session.id}/calibrations/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee`,
-      "POST",
-      {}
-    );
-    assert.strictEqual(result.status, 400);
-    assert.strictEqual(
-      (await api(`/sessions/${session.id}/restart`, "POST", { ws: session.ws }))
-        .status,
-      400
-    );
-    assert.strictEqual(server.manager.usage.calibrations, 0);
-    assert.strictEqual(
-      await readFile(fixture.marker, "utf8").catch(() => ""),
-      ""
-    );
-  });
-
-  it("생성 중 취소된 더미도 남기지 않는다", async () => {
-    const fixture = await launchFixture();
-    const { body: session } = await api("/sessions", "POST", {
-      port: fixture.port,
-      kind: "node",
-    });
-    await attach(session.ws);
-    await api(`/sessions/${session.id}?ready=true`);
-    const endpoint = `/sessions/${session.id}/calibrations/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee`;
-    const creating = api(endpoint, "POST", {});
-
-    // 서버에 요청이 도착한 뒤 생성이 진행 중인 시점에 취소한다.
-    while (!server.manager.usage.calibrations) {
-      await new Promise((resolve) => setTimeout(resolve, 1));
-    }
-
-    await api(endpoint, "DELETE");
-    await creating;
-    assert.strictEqual(server.manager.usage.calibrations, 0);
-    assert.strictEqual(
-      server.manager.usage.calibrationsCreated,
-      server.manager.usage.calibrationsDisposed
-    );
-  });
-
-  it("다른 로컬 포트의 화면에 API 접근을 허용하고 프론트 파일은 제공하지 않는다", async () => {
-    for (const origin of ["http://localhost:8000", "http://127.0.0.1:8001"]) {
-      const preflight = await fetch(`${server.origin}/sessions`, {
-        method: "OPTIONS",
-        headers: {
-          Origin: origin,
-          "Access-Control-Request-Method": "POST",
-          "Access-Control-Request-Headers": "content-type",
-        },
-      });
-      assert.strictEqual(preflight.status, 204);
-      assert.strictEqual(
-        preflight.headers.get("Access-Control-Allow-Origin"),
-        origin
-      );
-      const response = await fetch(server.origin, {
-        headers: { Origin: origin },
-      });
-      assert.strictEqual(response.status, 200);
-      assert.strictEqual(
-        response.headers.get("Access-Control-Allow-Origin"),
-        origin
-      );
-      assert.strictEqual((await response.json()).service, "BackDo");
-    }
-
-    for (const entry of ["devtools_app.html", "js_app.html"]) {
-      assert.strictEqual(
-        (await fetch(`${server.origin}/gen/front_end/${entry}`)).status,
-        404
-      );
-    }
-  });
-
-  it("종료 요청을 무시하는 자식도 강제 종료하고 서버를 계속 사용할 수 있다", async () => {
-    const child = spawn(
-      process.execPath,
-      [
-        "-e",
-        `
-      process.on('SIGTERM', () => {});
-      console.log('준비');
-      setInterval(() => {}, 1000);
-    `,
-      ],
-      { stdio: ["ignore", "pipe", "pipe"] }
-    );
-    children.add(child);
-    await once(child.stdout, "data");
-
-    await terminateProcess(child.pid, child);
-
-    assert.strictEqual(child.signalCode, "SIGKILL");
-    assert.strictEqual((await api("/")).status, 200);
-  });
-
-  it("Console과 Node 이외의 세션 등록은 대상 조회 전에 거절한다", async () => {
-    for (const kind of ["page", "browser", "worker"]) {
-      const response = await api("/sessions", "POST", { port: 1, kind });
-      assert.strictEqual(response.status, 400);
-      assert.include(response.body.error, "지원하지 않는 디버깅 대상");
-      assert.strictEqual(server.manager.usage.sessions, 0);
-    }
-  });
-
-  it("임의 PID 종료와 다른 웹사이트의 프로세스 제어 요청을 거절한다", async () => {
-    assert.strictEqual(
-      (await api("/ws/close", "POST", { browserPID: process.pid })).status,
-      400
-    );
-    const response = await fetch(`${server.origin}/sessions`, {
+    const created = await requestJSON(server.origin, endpoint, {
       method: "POST",
-      headers: {
-        Origin: "https://example.com",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ port: 9229, kind: "node" }),
+      body: {},
     });
-    assert.strictEqual(response.status, 403);
+    assert.strictEqual(created.status, 200, JSON.stringify(created.body));
+    assert.notStrictEqual(Number(new URL(created.body.ws).port), original.port);
+    const measurementDebugger = connect(created.body.ws);
+
+    const locations = await findBreakableLocations(
+      measurementDebugger,
+      "const value = 1;"
+    );
+
+    assert.isNotEmpty(locations);
+
+    const [, disposed] = await Promise.all([
+      once(measurementDebugger, "closed", {
+        signal: AbortSignal.timeout(10_000),
+      }),
+      requestJSON(server.origin, endpoint, { method: "DELETE" }),
+    ]);
+    assert.strictEqual(disposed.status, 204);
+    // 같은 call frame에서 평가할 수 있어야 원래 정지도 유지된 것이다.
+    const pausedPid = await evaluateInCallFrame(
+      originalDebugger,
+      startupPause.callFrames[0].callFrameId,
+      "process.pid"
+    );
+
+    assert.strictEqual(pausedPid, original.child.pid);
+    assert.isFalse(
+      existsSync(executionLog),
+      "측정 중 사용자 코드가 실행되면 안 된다"
+    );
   });
+
+  afterEach(async () => {
+    // 원본은 테스트가, 교체·측정 대상은 서버가 소유한다.
+    // 연결 해제로 사용자 코드가 재개되지 않도록 프로세스를 먼저 종료한다.
+    const errors = [];
+    const steps = [
+      () => original && terminateProcess(original.child.pid, original.child),
+      () => server?.close(),
+      ...connections.map((client) => () => client.close()),
+      () => directory && rm(directory, { recursive: true, force: true }),
+    ];
+    for (const close of steps) {
+      try {
+        await close();
+      } catch (error) {
+        errors.push(error);
+      }
+    }
+    if (errors.length) {
+      throw new AggregateError(errors, "서버 테스트 자원 정리 실패");
+    }
+  });
+
+  function connect(ws) {
+    const client = new InspectorConnection(ws);
+    connections.push(client);
+    return client;
+  }
+
+  async function registerNodePausedAtStart(port) {
+    const registered = await requestJSON(server.origin, "/sessions", {
+      method: "POST",
+      body: { port, kind: "node" },
+    });
+    assert.strictEqual(registered.status, 200, JSON.stringify(registered.body));
+    const session = registered.body;
+    const client = connect(session.ws);
+    const startupPause = await pauseAtStart(client);
+    const ready = await requestJSON(
+      server.origin,
+      `/sessions/${session.id}?ready=true`
+    );
+    assert.strictEqual(ready.status, 200, JSON.stringify(ready.body));
+    return { session, client, startupPause };
+  }
 });
