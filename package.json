@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node ./index.js",
     "start:console": "node ./index.js console",
+    "start:dom": "node ./index.js dom",
     "start:node": "node ./index.js node",
     "close": "node ./clis/index.js close",
     "test": "mocha \"test/**/*.test.js\" --timeout 30000"
