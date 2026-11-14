@@ -186,7 +186,7 @@ class ProcessManager {
 
     if (!target) {
       throw new Error(
-        "Console 실행 대상은 이 서버의 npm run start:console로 생성한 포트에 연결해 주세요."
+        "Console·DOM 실행 대상은 이 서버의 npm run start:console 또는 npm run start:dom으로 생성한 포트에 연결해 주세요."
       );
     }
 

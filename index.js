@@ -5,7 +5,7 @@ const { landingUrl } = require("./config.json");
 async function main() {
   const [mode, ...args] = process.argv.slice(2);
   const usage =
-    "npm run start:console 또는 npm run start:node를 사용해 주세요.";
+    "npm run start:console, npm run start:dom 또는 npm run start:node를 사용해 주세요.";
 
   if (!mode) {
     console.log(usage);
@@ -13,12 +13,12 @@ async function main() {
     return;
   }
 
-  if (!["console", "node"].includes(mode)) {
+  if (!["console", "dom", "node"].includes(mode)) {
     throw new Error(usage);
   }
 
   const { values } = parseArgs({ args, options: { port: { type: "string" } } });
-  const port = Number(values.port ?? (mode === "console" ? 9222 : 9229));
+  const port = Number(values.port ?? (mode === "node" ? 9229 : 9222));
 
   if (
     (values.port !== undefined && !/^\d+$/.test(values.port)) ||
@@ -48,19 +48,24 @@ async function main() {
   });
 
   try {
-    if (mode === "console") {
+    if (mode !== "node") {
       const target = await server.manager.openBrowser(port);
+      const label = mode === "dom" ? "DOM" : "Console";
 
       if (closing) {
         return;
       }
 
-      console.log("Console 준비 완료");
+      console.log(`${label} 준비 완료`);
       console.log(`1. ${landingUrl} 를 여세요.`);
       console.log(
-        `2. Console을 선택하고 디버깅 포트 ${target.port}를 입력한 뒤 연결하세요.`
+        `2. ${label}을 선택하고 디버깅 포트 ${target.port}를 입력한 뒤 연결하세요.`
       );
-      console.log("3. 열린 화면의 Console에 JavaScript를 입력하세요.");
+      console.log(
+        mode === "dom"
+          ? "3. 열린 화면의 Console에 DOM을 만드는 JavaScript를 입력하고 왼쪽 미리보기에서 확인하세요."
+          : "3. 열린 화면의 Console에 JavaScript를 입력하세요."
+      );
     } else {
       console.log("Node 연결 준비");
       console.log("1. 사용자 프로젝트의 터미널에서 실행하세요.");
